@@ -1,0 +1,41 @@
+Screen {
+    overflow: auto;
+}
+
+/* colunas, linhas no grid-size */
+
+/* se colocar o min-height e min-width, o programa automaticamente
+coloca um scroolwindow. O porquê disso não sei */
+/* não ative altura(height) no leitor, bug. */
+
+#leitor {
+    /* layout: vertical; */
+    /* grid-size: 1 3;
+    grid-gutter: 1 2; */
+    /* height: 5; */
+    margin: 1;
+    padding: 1;
+}
+
+Button {
+    height: 100%;
+    width: 100%;
+}
+
+Label {
+    height: 100%;
+    width: 100%;
+}
+
+/* nao altere: grid-gutter(espaçamento entre objetos) heigth */
+/* com 'padding: 1' precisa do height: 5, e sem padding -> 'height: 3' */
+#container2 {
+    layout: grid;
+    grid-size: 4 1;
+    grid-gutter: 1 2;
+    /* grid-columns: 1fr 1fr 1fr 1fr;
+    grid-rows: 1fr; */
+    /* margin: 1 2; */
+    height: 5;
+    padding: 1;
+}

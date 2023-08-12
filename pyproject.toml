@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "ler-documento"
+version = "0.1.0"
+description = ""
+authors = ["b166erobot <bernard0freitas@outlook.com>"]
+readme = "README.md"
+packages = [{include = "ler_documento"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pypdf4 = "^1.27.0"
+pynput = "^1.7.6"
+spacy = "^3.6.0"
+textual = "^0.32.0"
+
+
+[tool.poetry.group.dev.dependencies]
+bpython = "^0.24"
+radon = "^6.0.1"
+pycodestyle = "^2.11.0"
+isort = "^5.12.0"
+textual-dev = "^1.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
