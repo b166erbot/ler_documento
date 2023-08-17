@@ -25,14 +25,14 @@ def obter_texto(nome_do_arquivo: Path) -> listas_textos:
     """Retorna o conteúdo de um arquivo de texto previamente salvo."""
     hash_do_arquivo = hashear_arquivo(nome_do_arquivo)
     with shelve.open(local_arquivo_shelve) as banco:
-        return banco[hash_do_arquivo]
+        return banco.get(hash_do_arquivo)
 
 
 def verificar_arquivo_shelve(nome_do_arquivo: Path) -> bool:
     """Verifica se o arquivo já foi processado e salvo no shelve."""
     hash_do_arquivo = hashear_arquivo(nome_do_arquivo)
     with shelve.open(local_arquivo_shelve) as banco:
-        return bool(hash_do_arquivo in banco)
+        return hash_do_arquivo in banco
 # ----- / -----
 
 
@@ -41,15 +41,20 @@ local_arquivo_progresso = Path('progresso.json')
 
 
 def salvar_progresso(nome_do_arquivo: Path, progresso: list[int]) -> None:
+    """Salva o progresso do usuário."""
     hash_do_arquivo = hashear_arquivo(nome_do_arquivo)
-    with open(local_arquivo_progresso) as arquivo:
-        configuração = load(arquivo)
+    if existe_arquivo(local_arquivo_progresso):
+        with open(local_arquivo_progresso) as arquivo:
+            configuração = load(arquivo)
+    else:
+        configuração = dict()
     configuração[hash_do_arquivo] = progresso
     with open(local_arquivo_progresso, 'w') as arquivo:
         dump(configuração, arquivo)
 
 
 def carregar_progresso(nome_do_arquivo: Path) -> Optional[dict[str, list[int]]]:
+    """Carrega o progresso do usuário."""
     hash_do_arquivo = hashear_arquivo(nome_do_arquivo)
     with open(local_arquivo_progresso) as arquivo:
         configuração = load(arquivo)
@@ -58,4 +63,5 @@ def carregar_progresso(nome_do_arquivo: Path) -> Optional[dict[str, list[int]]]:
 
 
 def existe_arquivo(local_arquivo: Path) -> bool:
+    """Verifica se o arquivo existe."""
     return all([local_arquivo.is_file(), local_arquivo.exists()])

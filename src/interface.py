@@ -29,15 +29,8 @@ injetar_argumentos: Callable
 retornar_contagens_porcento: Callable
 retornar_textos_argumentos: Callable
 # bug no label, se tirar o \n do final, ele não exibe a última linha.
-forma_texto_inicio = """
-[green]Bem vindo ao Leitor de arquivos![/green]
-Informações:
-Nome do arquivo = {},
--- Página = {}, Sentença = {}
-Não se preocupe pois o programa salva o progresso [dodger_blue2]automaticamente
---[/] na [dodger_blue2]saída[/] do programa.
-E para sair, apenas precione [dodger_blue2]ctrl+c[/].
-""".replace('\n--', '')
+with open(str(local_programa / 'texto_bem_vindo.txt')) as arquivo:
+    forma_texto_inicio = arquivo.read()
 
 
 class TelaPrincipal(Screen):
@@ -58,6 +51,8 @@ class TelaPrincipal(Screen):
         """Compoẽ os widgets na tela."""
         with VerticalScroll(id = 'leitor_tela_principal') as container:
             container.border_title = 'Principal'
+            numero_paginas = len(contagens._indexes_paginas)
+            botões_desabilitados = numero_paginas <= 1
             with Vertical(id = 'container_progresso'):
                 yield self.label_principal
                 yield self.barra_progresso
@@ -80,21 +75,23 @@ class TelaPrincipal(Screen):
                     )
                     yield Button(
                         'avançar página', id = 'avancar_pagina',
-                        variant = 'warning'
+                        variant = 'warning', disabled = botões_desabilitados
                     )
                     yield Button(
                         'voltar página', id = 'voltar_pagina',
-                        variant = 'warning'
+                        variant = 'warning', disabled = botões_desabilitados
                     )
 
 
     def _atualizar_label_principal(self) -> None:
+        """Atualiza o texto do label principal."""
         pagina = contagens.pagina_atual + 1
         sentença = contagens.contagem_atual.numero_atual + 1
         self.label_principal.update(self.forma.format(pagina, sentença))
 
     @on(Button.Pressed, '#voltar')
     def voltar_pressionado(self, botão: Button.Pressed) -> None:
+        """Executa uma tarefa quando o esse botão for pressionado."""
         voltar(contagens)
         # não precisa colocar número negativo abaixo pois o porcentagem
         # já retorna um número negativo
@@ -106,6 +103,7 @@ class TelaPrincipal(Screen):
 
     @on(Button.Pressed, '#avancar')
     def avançar_pressionado(self, botão: Button.Pressed) -> None:
+        """Executa uma tarefa quando o esse botão for pressionado."""
         avancar(contagens)
         self.barra_progresso.advance(
             porcentagem.calcular(contagens.numero_atual_)
@@ -114,6 +112,7 @@ class TelaPrincipal(Screen):
     
     @on(Button.Pressed, '#avancar_pagina')
     def avançar_pagina_pressionado(self, botão: Button.Pressed) -> None:
+        """Executa uma tarefa quando o esse botão for pressionado."""
         avancar_pagina(contagens)
         self.barra_progresso.advance(
             porcentagem.calcular(contagens.numero_atual_)
@@ -122,6 +121,7 @@ class TelaPrincipal(Screen):
     
     @on(Button.Pressed, '#voltar_pagina')
     def voltar_pagina_pressionado(self, botão: Button.Pressed) -> None:
+        """Executa uma tarefa quando o esse botão for pressionado."""
         voltar_pagina(contagens)
         # não precisa colocar número negativo abaixo pois o porcentagem
         # já retorna um número negativo
@@ -132,6 +132,7 @@ class TelaPrincipal(Screen):
 
     @on(Button.Pressed, '#pausar')
     def pausar_pressionado(self, botão: Button.Pressed) -> None:
+        """Executa uma tarefa quando o esse botão for pressionado."""
         pausar = self.query_one('#pausar', Button)
         rodar = self.query_one('#rodar', Button)
         if not self._variaveis_compartilhadas['pausar']:
@@ -144,6 +145,7 @@ class TelaPrincipal(Screen):
 
     @on(Button.Pressed, '#rodar')
     def rodar_pressionado(self, botão: Button.Pressed) -> None:
+        """Executa uma tarefa quando o esse botão for pressionado."""
         pausar = self.query_one('#pausar', Button)
         rodar = self.query_one('#rodar', Button)
         if self._variaveis_compartilhadas['pausar']:
@@ -186,10 +188,12 @@ class TelaBoasVindas(Screen):
 
     @on(Button.Pressed, '#botao_comecar')
     async def começar_pressionado(self, botão: Button.Pressed) -> None:
+        """Executa uma tarefa quando o esse botão for pressionado."""
         self.executar_fala()
     
     @work(exclusive = True, thread = True)
     def executar_fala(self) -> None:
+        """Thread separada para executar o gerenciar_falas."""
         gerenciar_falas(
             *retornar_textos_argumentos(), contagens,
             self._atualizar_label_principal,
@@ -198,16 +202,19 @@ class TelaBoasVindas(Screen):
         )
     
     def _atualizar_progresso(self) -> None:
+        """Atualiza o progresso da barra de progresso."""
         self.barra_progresso.advance(
             porcentagem.calcular(contagens.numero_atual_)
         )
     
     def _atualizar_label_principal(self) -> None:
+        """Atualiza o texto do label principal."""
         pagina = contagens.pagina_atual + 1
         sentença = contagens.contagem_atual.numero_atual + 1
         self.label_principal.update(self.forma.format(pagina, sentença))
 
     def _esperar_retomar(self) -> None:
+        """Espera um tempo até que o usuário despause."""
         while self._variaveis_compartilhadas['pausar']:
             sleep(0.1)
 
@@ -229,7 +236,8 @@ class TelaCarregando(Screen):
     
     def compose(self) -> ComposeResult:
         """Compoẽ os widgets na tela."""
-        with Vertical(id = 'vertical_carregamento'):
+        with Vertical(id = 'vertical_carregamento') as container:
+            container.border_title = 'Carregando'
             yield Label('Carregando...', id = 'label_carregamento')
             yield LoadingIndicator(id = 'loading_carregamento')
 
@@ -256,6 +264,7 @@ class LeitorApp(App):
         super().__init__(*args, **kwargs)
         
     def on_mount(self) -> None:
+        """Executa tarefas na montagem das telas."""
         self.push_screen('tela carregando')
         # não use mais de uma tread aqui, pois senão a segunda em diante
         # não irá funcionar.
@@ -349,12 +358,15 @@ class LeitorApp(App):
         sleep(0.3)
     
     def erro_sair(self) -> None:
+        """Exibe uma mensagem de erro na tela e sai."""
         # colocar para trocar de tela aqui sem o lambda, gera um erro.
         self.call_later(lambda: self.switch_screen('tela erro'))
         sleep(4)
+        # coloquei o super aqui pois não quero salvar o progresso.
         super().exit()
 
     def exit(self) -> None:
+        """Função de sair do programa."""
         self.variaveis_compartilhadas['pausar'] = False
         sair(contagens)
         super().exit()

@@ -17,6 +17,7 @@ sair_: bool = False
 
 
 def sair(contagens: ContagensFinitas):
+    """Ajuda a função gerenciar_falas a sair."""
     global sair_
     salvar_progresso(
         contagens.nome_arquivo,
@@ -31,27 +32,32 @@ def sair(contagens: ContagensFinitas):
 
 
 def resto_codigo_acao(contagens: ContagensFinitas) -> None:
+    """Função auxiliar para as funções neste módulo."""
     contagens.contagem_atual.repetir_ao_passar_pagina = True
     pausar_entre_falas.ativar(1)
     parar_fala()
 
 
 def voltar(contagens: ContagensFinitas) -> None:
+    """Volta um número na contagem."""
     contagens.anterior
     resto_codigo_acao(contagens)
 
 
 def avancar(contagens: ContagensFinitas) -> None:
+    """Avança um número na contagem."""
     contagens.contagem_atual.proximo_sem_restricao
     resto_codigo_acao(contagens)
 
 
 def avancar_pagina(contagens: ContagensFinitas) -> None:
+    """Avança uma página nas contagens."""
     contagens.proxima_pagina
     resto_codigo_acao(contagens)
 
 
 def voltar_pagina(contagens: ContagensFinitas) -> None:
+    """Volta uma página nas contagens."""
     contagens.pagina_anterior
     resto_codigo_acao(contagens)
 
@@ -61,6 +67,7 @@ def gerenciar_falas(
     contagens: ContagensFinitas, atualizar_label: Callable,
     atualizar_progresso: Callable, esperar_retomar: Callable
 ) -> None:
+    """Função que irá gerenciar as falas e precisa rodar como uma tread."""
     sleep(1)
     while contagens.tem_proximo:
         esperar_retomar()

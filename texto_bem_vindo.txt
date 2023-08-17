@@ -1,0 +1,5 @@
+[green]Bem vindo ao Leitor de arquivos![/green]
+Informações:
+Nome do arquivo = {}, Página = {}, Sentença = {}
+Não se preocupe pois o programa salva o progresso [dodger_blue2]automaticamente[/] na [dodger_blue2]saída[/] do programa.
+E para sair, apenas precione [dodger_blue2]ctrl+c[/].

@@ -17,22 +17,26 @@ porcentagem: Porcento
 
 
 def injetar_argumentos(argumentos_: Namespace) -> None:
+    """Injeta argumentos para este módulo para ser importado posteriormente."""
     global argumentos, textos, nome_arquivo, contagens, porcentagem
     argumentos = argumentos_
     nome_arquivo = Path(argumentos.arquivo.strip()).expanduser().absolute()
-    arquivo_processado = verificar_arquivo_shelve(nome_arquivo)
-    if any([arquivo_processado, argumentos.forcar_salvamento]):
+    textos_ = obter_texto(nome_arquivo)
+    if any([argumentos.forcar_salvamento, textos_ is None]):
         textos = extrair(
             nome_arquivo, argumentos.lingua_spacy, argumentos.paginas
         )
         salvar(textos, nome_arquivo)
-    elif not arquivo_processado:
-        textos = obter_texto(nome_arquivo)
+    else:
+        textos = textos_
     contagens = ContagensFinitas(
         ((numero, 0, len(pagina) - 1) for numero, pagina in textos),
         nome_arquivo
     )
-    if existe_arquivo(Path('progresso.json')):
+    if not existe_arquivo(Path('progresso.json')):
+        contagens.definir_progresso([0, 0])
+        porcentagem = Porcento(contagens.numero_maximo, 0)
+    else:
         progresso = carregar_progresso(nome_arquivo)
         if all([progresso != None, not argumentos.forcar_salvamento]):
             # decidi que não vou colocar o progresso no init do contagens.
@@ -44,8 +48,10 @@ def injetar_argumentos(argumentos_: Namespace) -> None:
 
 
 def retornar_contagens_porcento() -> list[ContagensFinitas, Porcento]:
+    """Retorna as contagens e porcento."""
     return [contagens, porcentagem]
 
 
 def retornar_textos_argumentos() -> list[list[str]]:
-    return textos, argumentos
+    """Retorna os textos e argumentos."""
+    return [textos, argumentos]

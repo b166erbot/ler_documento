@@ -1,3 +1,4 @@
+# nome em inglês: structures
 from argparse import Namespace
 from dataclasses import dataclass
 

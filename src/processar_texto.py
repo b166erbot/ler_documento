@@ -7,6 +7,7 @@ nlp = None
 
 
 def configurar_nlp(lingua: str):
+    """Injeta o idioma e configura o nlp."""
     global nlp
     try:
         nlp = load(lingua)
@@ -16,5 +17,6 @@ def configurar_nlp(lingua: str):
 
 
 def processar(texto: str) -> Iterable:
+    """Retorna os textos em forma de sentenças."""
     doc = nlp(texto)
     return map(lambda sentenca: sentenca.text, doc.sents)

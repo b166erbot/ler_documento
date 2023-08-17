@@ -9,7 +9,7 @@ def main() -> None:
     descricao = 'Programa que lê um texto de um arquivo sem usar a internet.'
     usagem = (
         '[poetry run] python3 main.py -a arquivo -f -l língua -v velocidade '
-        '-p paginas'
+        '-p paginas -z'
     )
     parser = ArgumentParser(
         usage = usagem, description = descricao
@@ -45,6 +45,10 @@ def main() -> None:
         help = 'Reinicia o progresso do arquivo para o início.'
     )
     argumentos = parser.parse_args()
+    # from src.carregar_texto import injetar_argumentos, retornar_contagens_porcento
+    # injetar_argumentos(argumentos)
+    # contagens, _ = retornar_contagens_porcento()
+    # import pdb; pdb.set_trace()
     app = LeitorApp(argumentos)
     app.run()
 
@@ -58,9 +62,7 @@ main()
 # na memória.
 # TODO: fazer com que ele armazene a folha/"numero da linha" para
 # eu ler com cautela depois.
-# TODO: documentar as funções e métodos.
-# TODO: loading widget textual. DESISTI KKKKKKKKKK
-# TODO: desativar botões de avançar e retroceder página caso o arquivo seja do
-# tipo texto puro.
-# TODO: VerticalScroll.
-# TODO: remover bibliotecas/códigos/módulos desnecessários.
+# TODO: colocar um lábel para mostrar a sentença atual? não vai ocupar muito
+# espaço?
+# TODO: colocar input para o usuário percorer as folhas de maneira mais fácil.
+# TODO: colocar um botão só para o play e pause.

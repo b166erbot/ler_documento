@@ -7,6 +7,7 @@ from typing import Any, Optional
 
 
 def esta_instalado(programa: str) -> bool:
+    """Retorna verdadeiro caso o programa esteja instalado no pc."""
     resposta = getoutput(f'apt list {programa} --installed')
     return programa in resposta
 
@@ -45,6 +46,7 @@ def tratar_paginas_usuario(paginas: str) -> list[int]:
 
 
 def paginas_invalidas(texto: str) -> bool:
+    """Verifica se as páginas digitadas pelo usuário estão erradas."""
     padrao = r'^(\d+)(?:-(\d+))?'
     itens = texto.split(', ')
     for item in itens:
@@ -68,6 +70,7 @@ class ContagemFinita:
 
     @property
     def proximo(self) -> int:
+        """Retorna o próximo número da contagem."""
         if any([self.repetir, self.repetir_ao_passar_pagina]):
             self.repetir_ao_passar_pagina = False
             return self.numero_atual
@@ -78,6 +81,7 @@ class ContagemFinita:
 
     @property
     def proximo_sem_restricao(self) -> int:
+        """Retorna o próximo número da contagem sem restrição."""
         if self.repetir:
             return self.numero_atual
         self.numero_atual = (
@@ -87,6 +91,7 @@ class ContagemFinita:
 
     @property
     def anterior(self) -> int:
+        """Retorna o número anterior da contagem."""
         if self.repetir:
             return self.numero_atual
         self.numero_atual = (
@@ -96,6 +101,7 @@ class ContagemFinita:
 
     @property
     def tem_proximo(self) -> bool:
+        """Verifica se tem próximo número."""
         # retorna falso caso não tenha mais um próximo número
         if any([self.repetir, self.repetir_ao_passar_pagina]):
             return True
@@ -103,6 +109,7 @@ class ContagemFinita:
 
     @property
     def tem_anterior(self) -> bool:
+        """Verifica se tem número anterior."""
         # retorna falso caso não tenha mais um número anterior
         if any([self.repetir, self.repetir_ao_passar_pagina]):
             return True
@@ -111,6 +118,7 @@ class ContagemFinita:
     def atualizar_limites(
         self, numero_inicial: int = None, numero_final: int = None
     ) -> None:
+        """Atualiza os limites da contagem."""
         # define os novos limites.
         if isinstance(numero_inicial, int):
             self._numero_inicial = numero_inicial
@@ -128,14 +136,19 @@ class ContagemFinita:
             self.numero_atual = max([self.numero_atual, self._numero_inicial])
 
     def ir_para_o_inicio(self):
+        """Retrocede a contagem para o início."""
         self.numero_atual = self._numero_inicial
 
     def ir_para_o_final(self):
+        """Avança a contagem para o final."""
         self.numero_atual = self._numero_final
+        self.repetir = True
     
     @property
     def retornar_numero_final(self) -> int:
+        """Retorna o número final da contagem."""
         return self._numero_final
+        self.repetir = True
 
 
 class ContagensFinitas:
@@ -157,9 +170,11 @@ class ContagensFinitas:
             self._numero_final = len(self._contagens) - 1
             self.numero_atual = 0
             self.nome_arquivo = nome_arquivo
+            self.repetir = False
 
     @property
     def proximo(self) -> list[slice]:
+        """Retorna o próximo número das contagens."""
         if self.contagem_atual.tem_proximo:
             slice1 = slice(self.numero_atual, self.numero_atual + 1)
             numero_slice2 = self.contagem_atual.proximo
@@ -185,6 +200,7 @@ class ContagensFinitas:
 
     @property
     def anterior(self) -> list[slice]:
+        """Retorna o número anterior das contagens."""
         if self.contagem_atual.tem_anterior:
             slice1 = slice(self.numero_atual, self.numero_atual + 1)
             numero_slice2 = self.contagem_atual.anterior
@@ -210,6 +226,7 @@ class ContagensFinitas:
 
     @property
     def tem_proximo(self) -> bool:
+        """Verifica se tem próximo número das contagens."""
         tem_proximo = any([
             self.contagem_atual.tem_proximo,
             self.numero_atual < self._numero_final
@@ -218,6 +235,7 @@ class ContagensFinitas:
 
     @property
     def tem_anterior(self) -> bool:
+        """Verifica se tem número anterior das contagens."""
         tem_anterior = any([
             self.contagem_atual.tem_anterior,
             self.numero_atual > self._numero_inicial
@@ -228,6 +246,7 @@ class ContagensFinitas:
     # Refatorar ou irá precisar no futuro?
     @property
     def proxima_pagina(self) -> list[slice]:
+        """Retorna os recortes para a próxima página."""
         if self.tem_proxima_pagina:
             # Colocar a contagem da página atual no último e ativar o repetir.
             self.contagem_atual.ir_para_o_final()
@@ -248,6 +267,7 @@ class ContagensFinitas:
         else:
             self.contagem_atual.ir_para_o_final()
             self.contagem_atual.repetir = True
+            self.repetir = True
             slice1 = slice(self.numero_atual, self.numero_atual + 1)
             numero_slice2 = self.contagem_atual.numero_atual
             slice2 = slice(numero_slice2, numero_slice2 + 1)
@@ -255,7 +275,16 @@ class ContagensFinitas:
 
     @property
     def pagina_anterior(self) -> list[slice]:
-        if self.tem_pagina_anterior:
+        """Retorna os recortes para a página anterior."""
+        if self.repetir:
+            self.repetir = False
+            self.contagem_atual.ir_para_o_inicio()
+            self.contagem_atual.repetir = True
+            slice1 = slice(self.numero_atual, self.numero_atual + 1)
+            numero_slice2 = self.contagem_atual.proximo
+            self.contagem_atual.repetir = False
+            slice2 = slice(numero_slice2, numero_slice2 + 1)
+        elif self.tem_pagina_anterior:
             # Colocar a contagem da página atual no primeiro e ativar o repetir.
             self.contagem_atual.ir_para_o_inicio()
             self.contagem_atual.repetir = True
@@ -284,22 +313,27 @@ class ContagensFinitas:
 
     @property
     def tem_proxima_pagina(self) -> bool:
+        """Verifica se tem próximo número."""
         return self.numero_atual < self._numero_final
     
     @property
     def tem_pagina_anterior(self) -> bool:
+        """Verifica se tem número anterior."""
         return self.numero_atual > self._numero_inicial
     
     def atualizar_contagens(
         self, paginas_indexes: list[list[int]], nome_arquivo: str
     ) -> None:
+        """Atualiza as contagens."""
         self.__init__(paginas_indexes, nome_arquivo)
     
     @property
     def pagina_atual(self) -> int:
+        """Retorna o número atual da página."""
         return self._indexes_paginas[self.numero_atual]
     
     def definir_progresso(self, progresso: list[int]) -> None:
+        """Define o progresso."""
         self.contagem_atual = self._contagens[
             self._indexes_paginas[progresso[0]]
         ]
@@ -319,12 +353,14 @@ class ContagensFinitas:
 
     @property
     def numero_atual_(self) -> int:
+        """Retorna o número atual da contagem de todas as contagens."""
         return sum([
             contagem.numero_atual for contagem in self._contagens.values()
         ])
     
     @property
     def numero_maximo(self) -> int:
+        """Retorna o número máximo de todas as contagens."""
         return sum([
             contagem.retornar_numero_final
             for contagem
@@ -337,17 +373,20 @@ class Temporizador:
         self._segundos = 0
     
     def ativar(self, segundos: int) -> None:
+        """Define os segundos para esperar."""
         if segundos < 0:
             raise ValueError("O valor de segundos precisa ser 'segundos >= 0'.")
         self._segundos = segundos
     
     def esperar(self):
+        """Espera os segundos definidos previamente."""
         while bool(self._segundos):
             self._segundos -= 1
             sleep(1)
 
 
 def recortar(lista: list[Any], numero: int) -> list[list[Any]]:
+    """Recorta uma lista conforme do número passado."""
     return [
         lista[pulo: pulo + numero]
         for pulo
@@ -361,18 +400,22 @@ class Porcento:
         self._numero_atual = numero_atual
     
     def calcular(self, numero_atual: int, ) -> int:
+        """Calcula a porcentagem dependendo da porcentagem anterior."""
         porcentagem = ((numero_atual - self._numero_atual) * 100) / self._total
         self._numero_atual = numero_atual
         return porcentagem
     
     @property
     def finalizou(self) -> bool:
+        """Verifica se a porcentagem chegou ao final."""
         return self._total == self._numero_atual
     
     @property
     def porcentagem_atual(self) -> int:
+        """Retorna a porcentagem atual."""
         return (self._numero_atual * 100) / self._total
 
 
 def colorir(texto: str, cor: str) -> str:
+    """Colore um texto de acordo com as regras da lib rich."""
     return f"[{cor}]{texto}[/]"
