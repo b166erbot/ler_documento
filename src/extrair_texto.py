@@ -25,11 +25,12 @@ def tratar_texto(
         for padrao, substituto in lista_substituir:
             texto = sub(padrao, substituto, texto)
         sentenças = list(processar(texto))
+        sentenças = list(filter(lambda sentença: bool(sentença), sentenças))
         textos.append([numero, sentenças])
     return textos
 
 
-def extrair_texto(local: Path, *args, **kwargs) -> list[str]:
+def extrair_texto(local: Path, *args, **kwargs) -> list[list[int, list[str]]]:
     """Retorna texto de um arquivo de texto comum."""
     with open(local) as arquivo:
         texto = arquivo.read()
@@ -43,22 +44,20 @@ def extrair_texto_pdf(
     local: Path, pagina: Optional[int] = None
 ) -> list[list[int, list[str]]]:
     """Retorna textos de um arquivo pdf."""
+    # import pdb; pdb.set_trace()
     # tudo precisa ser feito no contexto do with. Se o arquivo fecha, dá erro.
     with open(local, 'rb') as arquivo:
         leitor_pdf = PdfFileReader(arquivo)
         numero_paginas = leitor_pdf.numPages
         iterador = range(leitor_pdf.numPages) if pagina is None else [pagina]
         # extrai os textos, filtra pegando somente os que tem texto.
-        textos = list(filter(
-            lambda lista: bool(lista[1]),
-            map(
+        textos = list(map(
                 lambda numero: [
                     numero, leitor_pdf.getPage(numero).extractText().strip()
                 ],
                 iterador
-            )
         ))
-    textos = tratar_texto(textos)
+    textos = tratar_texto(textos)[0]
     return textos
 
 
@@ -82,8 +81,8 @@ def extrair(
             textos_ = extensoes_e_funcoes[local.suffix](
                 local, numero
             )
-            textos_[1] = list(filter(lambda string: bool(string), textos_[1]))
             textos.append(textos_)
+        # import pdb; pdb.set_trace()
     else:
         textos = extensoes_e_funcoes[local.suffix](local)
     return textos

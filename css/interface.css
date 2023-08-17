@@ -1,41 +1,85 @@
+/* Eu não faço a menor ideia de como fazer um css legal. */
+
 Screen {
-    overflow: auto;
+    align: center middle;
 }
 
 /* colunas, linhas no grid-size */
 
 /* se colocar o min-height e min-width, o programa automaticamente
 coloca um scroolwindow. O porquê disso não sei */
-/* não ative altura(height) no leitor, bug. */
 
-#leitor {
-    /* layout: vertical; */
-    /* grid-size: 1 3;
-    grid-gutter: 1 2; */
-    /* height: 5; */
-    margin: 1;
-    padding: 1;
-}
-
-Button {
-    height: 100%;
-    width: 100%;
-}
-
-Label {
-    height: 100%;
-    width: 100%;
-}
 
 /* nao altere: grid-gutter(espaçamento entre objetos) heigth */
 /* com 'padding: 1' precisa do height: 5, e sem padding -> 'height: 3' */
-#container2 {
+#botoes_tela_principal1 {
     layout: grid;
-    grid-size: 4 1;
-    grid-gutter: 1 2;
-    /* grid-columns: 1fr 1fr 1fr 1fr;
-    grid-rows: 1fr; */
-    /* margin: 1 2; */
+    grid-size: 2 0;
+    border: round $warning;
     height: 5;
-    padding: 1;
+}
+
+#botoes_tela_principal2 {
+    layout: grid;
+    grid-size: 4 0;
+    border: round $warning;
+    height: 5;
+}
+
+#container_progresso {
+    layout: grid;
+    grid-size: 0 2;
+    height: 3;
+}
+
+#leitor_tela_principal {
+    grid-gutter: 1 1;
+    border: panel $warning;
+    border-title-align: center;
+    padding: 1 1;
+    align: center middle;
+    min-height: 15;
+    min-width: 25;
+}
+
+#grid_comeco {
+    grid-gutter: 1 2;
+    border: panel $warning;
+    border-title-align: center;
+    align: center middle;
+}
+
+#vertical_carregamento {
+    grid-size: 0 2;
+    grid-gutter: 1 2;
+    border: panel $warning;
+    border-title-align: center;
+    align: center middle;
+}
+
+#label_inicio {
+    border: round $warning;
+}
+
+#separar_progresso_dos_botoes {
+    height: 3;
+}
+
+#loading_carregamento {
+    height: 3;
+    width: 20;
+}
+
+#label_erro {
+    width: 100%;
+    border: round $error;
+    align: center middle;
+}
+
+#label_carregando {
+    margin: 0 5;
+}
+
+Button {
+    text-align: center;
 }

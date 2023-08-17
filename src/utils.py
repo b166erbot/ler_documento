@@ -1,5 +1,5 @@
 import re
-from itertools import chain
+from itertools import chain, dropwhile, takewhile
 from pathlib import Path
 from subprocess import getoutput
 from time import sleep
@@ -44,18 +44,18 @@ def tratar_paginas_usuario(paginas: str) -> list[int]:
     return paginas_
 
 
-def validar_paginas(texto: str) -> bool:
+def paginas_invalidas(texto: str) -> bool:
     padrao = r'^(\d+)(?:-(\d+))?'
     itens = texto.split(', ')
     for item in itens:
         match = re.fullmatch(padrao, item)
         if not match:
-            return False
+            return True
         if match.group(2):
             num_anterior, num_posterior = map(int, match.groups())
             if num_anterior >= num_posterior:
-                return False
-    return True
+                return True
+    return False
 
 
 class ContagemFinita:
@@ -143,7 +143,10 @@ class ContagensFinitas:
         self, paginas_indexes: Optional[list[list[int]]] = None,
         nome_arquivo: Optional[Path] = None
     ) -> None:
-        if paginas_indexes != None:
+        if all(map(
+            lambda item: item != None,
+            [paginas_indexes, nome_arquivo]
+        )):
             self._contagens = {
                 numero: ContagemFinita(inicio, fim)
                 for (numero, inicio, fim) in paginas_indexes
@@ -300,6 +303,18 @@ class ContagensFinitas:
         self.contagem_atual = self._contagens[
             self._indexes_paginas[progresso[0]]
         ]
+        contagens_antes = takewhile(
+            lambda contagem: contagem != self.contagem_atual,
+            self._contagens.values()
+        )
+        contagens_depois = dropwhile(
+            lambda contagem: contagem != self.contagem_atual,
+            self._contagens.values()
+        )
+        for contagem in contagens_antes:
+            contagem.ir_para_o_final()
+        for contagem in contagens_depois:
+            contagem.ir_para_o_inicio()
         self.numero_atual, self.contagem_atual.numero_atual = progresso
 
     @property
@@ -346,6 +361,18 @@ class Porcento:
         self._numero_atual = numero_atual
     
     def calcular(self, numero_atual: int, ) -> int:
-        porcentagem = (numero_atual - self._numero_atual * 100) / self._total
+        porcentagem = ((numero_atual - self._numero_atual) * 100) / self._total
         self._numero_atual = numero_atual
         return porcentagem
+    
+    @property
+    def finalizou(self) -> bool:
+        return self._total == self._numero_atual
+    
+    @property
+    def porcentagem_atual(self) -> int:
+        return (self._numero_atual * 100) / self._total
+
+
+def colorir(texto: str, cor: str) -> str:
+    return f"[{cor}]{texto}[/]"

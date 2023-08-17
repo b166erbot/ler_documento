@@ -3,8 +3,6 @@ from json import dump, load
 from pathlib import Path
 from typing import Optional, Union
 
-from pynput.keyboard import Key
-
 from src.hash import hashear_arquivo
 
 listas_textos = Union[list[list[str]], list[str]]
@@ -35,49 +33,6 @@ def verificar_arquivo_shelve(nome_do_arquivo: Path) -> bool:
     hash_do_arquivo = hashear_arquivo(nome_do_arquivo)
     with shelve.open(local_arquivo_shelve) as banco:
         return bool(hash_do_arquivo in banco)
-# ----- / -----
-
-
-# ----- config.json -----
-teclas_dicionario = {
-    'voltar': ['ctrl', ','],
-    'avancar': ['ctrl', '.'],
-    'voltar_pagina': ['alt', ','],
-    'avancar_pagina': ['alt', '.'],
-    'sair': ['ctrl', ';']
-}
-local_arquivo_config = Path('config.json')
-
-
-def carregar_config_teclado() -> list[str]:
-    chaves = list(map(lambda chave: chave.name, Key))
-    # Não altere a ordem das chaves, os valores não importa a ordem
-    # nem o conteúdo.
-    with open(local_arquivo_config) as arquivo:
-        config = load(arquivo)
-    # Estou sem criatividade para criar nome de variável.
-    retorno = []
-    for teclas_atalho in config['teclas_atalho'].values():
-        retorno.append(
-            '+'.join(map(
-                lambda chave: f"<{chave}>" if chave in chaves else chave,
-                teclas_atalho
-            ))
-        )
-    return retorno
-
-
-def carregar_config_falas() -> list[str]:
-    with open(local_arquivo_config) as arquivo:
-        config = load(arquivo)
-    return config
-
-
-def criar_config() -> None:
-    config = dict()
-    config['teclas_atalho'] = teclas_dicionario
-    with open(local_arquivo_config, 'w') as arquivo:
-        dump(config, arquivo, indent = 4)
 # ----- / -----
 
 
