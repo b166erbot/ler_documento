@@ -14,7 +14,7 @@ coloca um scroolwindow. O porquê disso não sei */
 /* com 'padding: 1' precisa do height: 5, e sem padding -> 'height: 3' */
 #botoes_tela_principal1 {
     layout: grid;
-    grid-size: 2 0;
+    grid-size: 4 0;
     border: round $warning;
     height: 5;
 }
@@ -28,7 +28,7 @@ coloca um scroolwindow. O porquê disso não sei */
 
 #container_progresso {
     layout: grid;
-    grid-size: 0 2;
+    grid-size: 0 3;
     height: 3;
 }
 
@@ -61,7 +61,7 @@ coloca um scroolwindow. O porquê disso não sei */
     border: round $warning;
 }
 
-#separar_progresso_dos_botoes {
+#label_sentencas {
     height: 3;
 }
 

@@ -28,7 +28,8 @@ def tratar_texto(
             texto = sub(padrao, substituto, texto)
         sentenças = list(processar(texto))
         sentenças = list(filter(lambda sentença: bool(sentença), sentenças))
-        textos.append([numero, sentenças])
+        if bool(sentenças):
+            textos.append([numero, sentenças])
     return textos
 
 

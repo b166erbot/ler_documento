@@ -3,6 +3,8 @@ from pathlib import Path
 from time import sleep
 from typing import Callable
 
+from textual.screen import Screen
+
 from src.falar import falar, parar_fala
 from src.salvar import carregar_progresso, existe_arquivo, salvar_progresso
 from src.utils import ContagensFinitas, Temporizador
@@ -64,17 +66,16 @@ def voltar_pagina(contagens: ContagensFinitas) -> None:
 
 def gerenciar_falas(
     textos: list[int, list[str]], argumentos: Namespace,
-    contagens: ContagensFinitas, atualizar_label: Callable,
-    atualizar_progresso: Callable, esperar_retomar: Callable
+    contagens: ContagensFinitas, tela_boas_vindas: Screen
 ) -> None:
     """Função que irá gerenciar as falas e precisa rodar como uma tread."""
     sleep(1)
     while contagens.tem_proximo:
-        esperar_retomar()
+        tela_boas_vindas._esperar_retomar()
         pausar_entre_falas.esperar()
         slice_pagina, slice_sentença = contagens.proximo
-        atualizar_progresso()
-        atualizar_label()
+        tela_boas_vindas._atualizar_progresso()
+        tela_boas_vindas._atualizar_label_status()
         if sair_:
             break
 

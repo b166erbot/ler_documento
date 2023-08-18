@@ -148,7 +148,6 @@ class ContagemFinita:
     def retornar_numero_final(self) -> int:
         """Retorna o número final da contagem."""
         return self._numero_final
-        self.repetir = True
 
 
 class ContagensFinitas:
@@ -334,8 +333,15 @@ class ContagensFinitas:
     
     def definir_progresso(self, progresso: list[int]) -> None:
         """Define o progresso."""
+        if progresso[0] != None:
+            self._definir_progresso_paginas(progresso[0])
+        elif progresso[1] != None:
+            self._definir_progresso_sentença(progresso[1])
+    
+    def _definir_progresso_paginas(self, pagina: int) -> None:
+        """Define o progresso da página."""
         self.contagem_atual = self._contagens[
-            self._indexes_paginas[progresso[0]]
+            self._indexes_paginas[pagina]
         ]
         contagens_antes = takewhile(
             lambda contagem: contagem != self.contagem_atual,
@@ -349,7 +355,11 @@ class ContagensFinitas:
             contagem.ir_para_o_final()
         for contagem in contagens_depois:
             contagem.ir_para_o_inicio()
-        self.numero_atual, self.contagem_atual.numero_atual = progresso
+        self.numero_atual = pagina
+    
+    def _definir_progresso_sentença(self, sentença: int) -> None:
+        """Define o progresso da sentença."""
+        self.contagem_atual.numero_atual = sentença
 
     @property
     def numero_atual_(self) -> int:

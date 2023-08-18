@@ -21,6 +21,17 @@ class TestContagensFinitas(TestCase):
         self.assertIs(self.contagens.contagem_atual, contagem_nova)
         self.contagens.anterior
         self.assertIs(self.contagens.contagem_atual, contagem_antiga)
+    
+    def test_contagens_passando_para_o_proximo_caso_avance_para_proxima_pagina(
+        self
+    ):
+        esperado = [slice(1, 2, None), slice(0, 1, None)]
+        self.contagens.proximo
+        self.contagens.proximo
+        self.contagens.proximo
+        self.contagens.proximo
+        resultado = self.contagens.proximo
+        self.assertEqual(esperado, resultado)
 
 
 class TestRecortar(TestCase):
