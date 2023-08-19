@@ -1,5 +1,7 @@
 """Módulo feito para corrigir import circular."""
 
+# Este módulo não deveria existir mais. Refatorar depois.
+
 
 from argparse import Namespace
 from pathlib import Path

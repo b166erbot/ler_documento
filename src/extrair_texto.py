@@ -14,7 +14,7 @@ lista_strings_opcional = list[Optional[str], Optional[list[str]]]
 lista_substituir = [
     (r'Œ', '-'), (r'\n-\n', ''),
     # deixe esta linha abaixo nessa sequência e por último.
-    (r'[\n\r\t]+', ' '), (r' {2,}', ' ')
+    (r'[\n\r\t\f\v]+', ''), (r' {2,}', ' ')
 ]
 
 

@@ -56,7 +56,7 @@ class TelaPrincipal(Screen):
             numero_paginas, numero_sentenças = (
                 retornar_numero_paginas_sentenças()
             )
-            botões_desabilitados = numero_paginas <= 1
+            botões_desabilitados = numero_paginas == 1
             with Vertical(id = 'container_progresso'):
                 yield self.label_status
                 yield self.barra_progresso
