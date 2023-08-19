@@ -6,7 +6,7 @@ from typing import Optional, Union
 from PyPDF4 import PdfFileReader
 
 from src.processar_texto import configurar_nlp, processar
-from src.utils import recortar, tratar_paginas_usuario
+from src.utils import tratar_paginas_usuario
 
 lista_strings_opcional = list[Optional[str], Optional[list[str]]]
 
@@ -14,7 +14,7 @@ lista_strings_opcional = list[Optional[str], Optional[list[str]]]
 lista_substituir = [
     (r'Œ', '-'), (r'\n-\n', ''),
     # deixe esta linha abaixo nessa sequência e por último.
-    (r'[\n\r\t\v\f]+', ' '), (r' {2,}', ' ')
+    (r'[\n\r\t]+', ' '), (r' {2,}', ' ')
 ]
 
 

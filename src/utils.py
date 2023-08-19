@@ -194,7 +194,7 @@ class ContagensFinitas:
             if self.contagem_atual.repetir:
                 self.contagem_atual.repetir = False
             slice2 = slice(numero_slice2, numero_slice2 + 1)
-        elif self.tem_proximo:
+        else:
             self.contagem_atual.repetir = True
             self.numero_atual += 1
             self.contagem_atual = self._contagens[
@@ -204,15 +204,10 @@ class ContagensFinitas:
             numero_slice2 = self.contagem_atual.proximo
             self.contagem_atual.repetir = False
             slice2 = slice(numero_slice2, numero_slice2 + 1)
-        else:
-            self.contagem_atual.repetir = True
-            slice1 = slice(self.numero_atual, self.numero_atual + 1)
-            numero_slice2 = self.contagem_atual.numero_atual
-            slice2 = slice(numero_slice2, numero_slice2 + 1)
         return [slice1, slice2]
 
     @property
-    def proximo_sem_restricao(self) -> list[slice]:
+    def proximo_sem_restrição(self) -> list[slice]:
         """Retorna o próximo número das contagens."""
         if self.contagem_atual.tem_proximo_sem_restrição:
             slice1 = slice(self.numero_atual, self.numero_atual + 1)
@@ -220,9 +215,11 @@ class ContagensFinitas:
             if self.contagem_atual.repetir:
                 self.contagem_atual.repetir = False
             slice2 = slice(numero_slice2, numero_slice2 + 1)
-        elif self.tem_proximo:
+        else:
             self.contagem_atual.repetir = True
-            self.numero_atual += 1
+            self.numero_atual = min([
+                self.numero_atual + 1, self._numero_final
+            ])
             self.contagem_atual = self._contagens[
                 self._indexes_contagens[self.numero_atual]
             ]
@@ -230,15 +227,33 @@ class ContagensFinitas:
             numero_slice2 = self.contagem_atual.proximo
             self.contagem_atual.repetir = False
             slice2 = slice(numero_slice2, numero_slice2 + 1)
-        else:
-            self.contagem_atual.repetir = True
-            slice1 = slice(self.numero_atual, self.numero_atual + 1)
-            numero_slice2 = self.contagem_atual.numero_atual
-            slice2 = slice(numero_slice2, numero_slice2 + 1)
         return [slice1, slice2]
 
     @property
     def anterior(self) -> list[slice]:
+        """Retorna o número anterior das contagens."""
+        if self.contagem_atual.tem_anterior:
+            slice1 = slice(self.numero_atual, self.numero_atual + 1)
+            numero_slice2 = self.contagem_atual.anterior
+            if self.contagem_atual.repetir:
+                self.contagem_atual.repetir = False
+            slice2 = slice(numero_slice2, numero_slice2 + 1)
+        else:
+            self.contagem_atual.repetir = True
+            self.numero_atual = max([
+                self.numero_atual + 1, self._numero_inicial
+            ])
+            self.contagem_atual = self._contagens[
+                self._indexes_contagens[self.numero_atual]
+            ]
+            slice1 = slice(self.numero_atual, self.numero_atual + 1)
+            numero_slice2 = self.contagem_atual.anterior
+            self.contagem_atual.repetir = False
+            slice2 = slice(numero_slice2, numero_slice2 + 1)
+        return [slice1, slice2]
+    
+    @property
+    def anterior_sem_restrição(self) -> list[slice]:
         """Retorna o número anterior das contagens."""
         if self.contagem_atual.tem_anterior_sem_restrição:
             slice1 = slice(self.numero_atual, self.numero_atual + 1)
@@ -246,7 +261,7 @@ class ContagensFinitas:
             if self.contagem_atual.repetir:
                 self.contagem_atual.repetir = False
             slice2 = slice(numero_slice2, numero_slice2 + 1)
-        elif self.tem_anterior:
+        else:
             self.contagem_atual.repetir = True
             self.numero_atual -= 1
             self.contagem_atual = self._contagens[
@@ -255,11 +270,6 @@ class ContagensFinitas:
             slice1 = slice(self.numero_atual, self.numero_atual + 1)
             numero_slice2 = self.contagem_atual.anterior
             self.contagem_atual.repetir = False
-            slice2 = slice(numero_slice2, numero_slice2 + 1)
-        else:
-            self.contagem_atual.repetir = True
-            slice1 = slice(self.numero_atual, self.numero_atual + 1)
-            numero_slice2 = self.contagem_atual.numero_atual
             slice2 = slice(numero_slice2, numero_slice2 + 1)
         return [slice1, slice2]
 
@@ -272,15 +282,6 @@ class ContagensFinitas:
         ])
         return tem_proximo
 
-    @property
-    def tem_anterior(self) -> bool:
-        """Verifica se tem número anterior das contagens."""
-        tem_anterior = any([
-            self.contagem_atual.tem_anterior,
-            self.numero_atual > self._numero_inicial
-        ])
-        return tem_anterior
-    
     # Não há necessidade de retornar slices na próxima_página e página_anterior.
     # Refatorar ou irá precisar no futuro?
     @property
@@ -404,11 +405,17 @@ class ContagensFinitas:
     @property
     def numero_maximo(self) -> int:
         """Retorna o número máximo de todas as contagens."""
-        return sum([
+        numero_maximo = sum([
             contagem.retornar_numero_final
             for contagem
             in self._contagens.values()
         ])
+        numero_maximo += len(self._contagens) - 1
+        return numero_maximo
+    
+    @property
+    def finalizou(self) -> bool:
+        return self.numero_maximo == self.numero_atual_
 
 
 class Temporizador:

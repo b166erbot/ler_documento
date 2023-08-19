@@ -6,7 +6,7 @@ from pathlib import Path
 
 from src.extrair_texto import extrair
 from src.salvar import (carregar_progresso, existe_arquivo, obter_texto,
-                        salvar, verificar_arquivo_shelve)
+                        salvar)
 from src.utils import ContagensFinitas, Porcento, Temporizador
 
 argumentos: Namespace
@@ -34,7 +34,7 @@ def injetar_argumentos(argumentos_: Namespace) -> None:
         nome_arquivo
     )
     condições_if = [
-        not existe_arquivo(Path('progresso.json')),
+        not existe_arquivo(Path('progresso.pkl')),
         argumentos.zerar_progresso
     ]
     if any(condições_if):

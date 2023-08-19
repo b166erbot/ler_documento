@@ -45,14 +45,6 @@ def main() -> None:
         help = 'Reinicia o progresso do arquivo para o início.'
     )
     argumentos = parser.parse_args()
-    # from src.carregar_texto import (
-    #     injetar_argumentos, retornar_contagens_porcento,
-    #     retornar_textos_argumentos
-    # )
-    # injetar_argumentos(argumentos)
-    # contagens, _ = retornar_contagens_porcento()
-    # textos, _ = retornar_textos_argumentos()
-    # import pdb; pdb.set_trace()
     app = LeitorApp(argumentos)
     app.run()
 
@@ -61,13 +53,9 @@ main()
 
 
 # TODO: colocar mais tipos de arquivos.
-# TODO: armazenar folha por folha no shelve para não lotar a memória.
 # TODO: salvar o arquivo inteiro, porém, carregar somente partes dele
 # na memória.
 # TODO: fazer com que ele armazene a folha/"numero da linha" para
 # eu ler com cautela depois.
-# TODO: colocar um lábel para mostrar a sentença atual? não vai ocupar muito
-# espaço?
-# TODO: colocar input para o usuário percorer as folhas de maneira mais fácil.
 # TODO: colocar um botão só para o play e pause. por causa de bugs, eu resolvi
 # não colocar.

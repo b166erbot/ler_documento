@@ -72,11 +72,13 @@ class TelaPrincipal(Screen):
                     )
                     yield Input(
                         id = 'input_pagina',
-                        validators = [Number(1, numero_paginas)]
+                        validators = [Number(1, numero_paginas)],
+                        placeholder = 'página'
                     )
                     yield Input(
                         id = 'input_sentenca',
                         validators = [Number(1, numero_sentenças)],
+                        placeholder = 'sentença',
                         disabled = True
                     )
                 with Horizontal(id = 'botoes_tela_principal2'):
@@ -107,7 +109,9 @@ class TelaPrincipal(Screen):
     
     def _atualizar_label_sentenças(self, texto) -> None:
         label_sentenças = self.query_one('#label_sentencas', Label)
-        label_sentenças.update(f"{texto[:234] if len(texto) > 234 else texto}")
+        if len(texto) > 234:
+            texto = f"{texto[:234]}..."
+        label_sentenças.update(texto)
 
     @on(Button.Pressed, '#voltar')
     def voltar_pressionado(self, evento: Button.Pressed) -> None:
@@ -311,8 +315,8 @@ class LeitorApp(App):
 
     CSS_PATH = str(local_programa / 'css/interface.css')
     variaveis_compartilhadas = {'pausar': False}
-    tela_boas_vindas = TelaBoasVindas(variaveis_compartilhadas)
     tela_principal = TelaPrincipal(variaveis_compartilhadas)
+    tela_boas_vindas = TelaBoasVindas(variaveis_compartilhadas)
     SCREENS = {
         'tela boas vindas': tela_boas_vindas,
         'tela principal': tela_principal,
@@ -325,6 +329,9 @@ class LeitorApp(App):
         tela_principal._atualizar_label_status
     )
     tela_principal.executar_fala = tela_boas_vindas.executar_fala
+    tela_boas_vindas._atualizar_label_sentenças = (
+        tela_principal._atualizar_label_sentenças
+    )
 
     def __init__(self, argumentos: Namespace, *args, **kwargs) -> None:
         self._argumentos = argumentos

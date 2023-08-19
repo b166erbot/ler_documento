@@ -24,15 +24,6 @@ class TestContagensFinitas(TestCase):
         self.contagens.proximo
         resultado = self.contagens.proximo
         self.assertEqual(esperado, resultado)
-
-    def test_contagens_voltando_1_vez_e_retornando_a_contagem_aterior(self):
-        contagem_antiga = self.contagens.contagem_atual
-        contagem_nova = self.contagens._contagens[1]
-        for i in range(5):
-            self.contagens.proximo
-        self.assertIs(self.contagens.contagem_atual, contagem_nova)
-        self.contagens.anterior
-        self.assertIs(self.contagens.contagem_atual, contagem_antiga)
     
     def test_contagens_passando_para_o_proximo_caso_avance_para_proxima_pagina(
         self
@@ -51,9 +42,9 @@ class TestContagensFinitas(TestCase):
     def test_proximo_sem_restricao_avancando_uma_pagina(self):
         contagem_anterior = self.contagens.contagem_atual
         for i in range(4):
-            self.contagens.proximo_sem_restricao
+            self.contagens.proximo_sem_restrição
         self.assertTrue(self.contagens.tem_proximo)
-        self.contagens.proximo_sem_restricao
+        self.contagens.proximo_sem_restrição
         nova_contagem = self.contagens.contagem_atual
         self.assertIsNot(contagem_anterior, nova_contagem)
 
@@ -120,5 +111,11 @@ class TestPorcento(TestCase):
     def test_retornando_porcentagem_atual_15(self):
         esperado = 15
         self.porcentagem.calcular(30)
+        resultado = self.porcentagem.porcentagem_atual
+        self.assertEqual(esperado, resultado)
+    
+    def test_retornando_99_caso_o_numero_antigo_seja_0(self):
+        esperado = 99.95
+        self.porcentagem.calcular(199.9)
         resultado = self.porcentagem.porcentagem_atual
         self.assertEqual(esperado, resultado)

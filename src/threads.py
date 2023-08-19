@@ -42,13 +42,13 @@ def resto_codigo_acao(contagens: ContagensFinitas) -> None:
 
 def voltar(contagens: ContagensFinitas) -> None:
     """Volta um número na contagem."""
-    contagens.anterior
+    contagens.anterior_sem_restrição
     resto_codigo_acao(contagens)
 
 
 def avancar(contagens: ContagensFinitas) -> None:
     """Avança um número na contagem."""
-    contagens.proximo_sem_restricao
+    contagens.proximo_sem_restrição
     resto_codigo_acao(contagens)
 
 
@@ -83,4 +83,5 @@ def gerenciar_falas(
         # o único [1] é por causa que os textos agora estão com números
         # das páginas
         texto = textos[slice_pagina][0][1][slice_sentença][0]
+        tela_boas_vindas._atualizar_label_sentenças(texto)
         falar(texto, argumentos.lingua_espeak, argumentos.velocidade)
