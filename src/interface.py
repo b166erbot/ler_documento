@@ -15,7 +15,7 @@ from textual.reactive import var
 from textual.screen import Screen
 from textual.widgets import (Button, Label, LoadingIndicator, ProgressBar,
                              Static, Input)
-from textual.validation import Number, Function
+from textual.validation import Number
 
 from src.falar import parar_fala
 from src.threads import (avancar, avancar_pagina, gerenciar_falas, sair,
@@ -52,8 +52,10 @@ class TelaPrincipal(Screen):
         """Compoẽ os widgets na tela."""
         with VerticalScroll(id = 'leitor_tela_principal') as container:
             container.border_title = 'Principal'
-            numero_paginas = len(contagens._indexes_paginas) - 1
-            numero_sentenças = contagens.contagem_atual._numero_final
+            # numero_paginas e numero_sentenças corrigidos para o usuário.
+            numero_paginas, numero_sentenças = (
+                retornar_numero_paginas_sentenças()
+            )
             botões_desabilitados = numero_paginas <= 1
             with Vertical(id = 'container_progresso'):
                 yield self.label_status
@@ -70,11 +72,11 @@ class TelaPrincipal(Screen):
                     )
                     yield Input(
                         id = 'input_pagina',
-                        validators = [Number(0, numero_paginas)]
+                        validators = [Number(1, numero_paginas)]
                     )
                     yield Input(
                         id = 'input_sentenca',
-                        validators = [Number(0, numero_sentenças)],
+                        validators = [Number(1, numero_sentenças)],
                         disabled = True
                     )
                 with Horizontal(id = 'botoes_tela_principal2'):
@@ -95,11 +97,17 @@ class TelaPrincipal(Screen):
 
     def _atualizar_label_status(self) -> None:
         """Atualiza o texto do label principal."""
-        pagina = contagens._indexes_paginas[contagens.pagina_atual]
+        pagina = contagens.numero_atual + 1
         sentença = contagens.contagem_atual.numero_atual + 1
+        pagina = colorir(pagina, 'dodger_blue2')
+        sentença = colorir(sentença, 'dodger_blue2')
         texto = self.forma.format(pagina, sentença)
-        texto += ' ' + retornar_numero_paginas_sentenças()
+        texto += '\n' + paginas_sentencas_para_o_usuario()
         self.label_status.update(texto)
+    
+    def _atualizar_label_sentenças(self, texto) -> None:
+        label_sentenças = self.query_one('#label_sentencas', Label)
+        label_sentenças.update(f"{texto[:234] if len(texto) > 234 else texto}")
 
     @on(Button.Pressed, '#voltar')
     def voltar_pressionado(self, evento: Button.Pressed) -> None:
@@ -172,11 +180,16 @@ class TelaPrincipal(Screen):
         self.pausar_pressionado(None)
         input_sentença = self.query_one('#input_sentenca', Input)
         if evento.validation_result.is_valid:
+            # evento.value corrigido para o programa.
             contagens._definir_progresso_paginas(int(evento.value) - 1)
+            # Number corrigido para o usuário.
             input_sentença.validators = [
-                Number(0, contagens.contagem_atual._numero_final)
+                Number(1, contagens.contagem_atual._numero_final + 1)
             ]
             self._atualizar_label_status()
+            self.barra_progresso.advance(
+                porcentagem.calcular(contagens.numero_atual_)
+            )
             input_sentença.disabled = False
         else:
             input_sentença.disabled = True
@@ -187,15 +200,27 @@ class TelaPrincipal(Screen):
         self.pausar_pressionado(None)
         if evento.validation_result.is_valid:
             contagens._definir_progresso_sentença(int(evento.value) - 1)
+            self.barra_progresso.advance(
+                porcentagem.calcular(contagens.numero_atual_)
+            )
             self._atualizar_label_status()
 
 
-def retornar_numero_paginas_sentenças() -> str:
+def retornar_numero_paginas_sentenças() -> list[int]:
     paginas = contagens._numero_final + 1
     sentenças = contagens.contagem_atual.retornar_numero_final + 1
+    return [paginas, sentenças]
+
+
+def paginas_sentencas_para_o_usuario() -> str:
+    # paginas e sentenças corrigidas para o usuário.
+    paginas, sentenças = retornar_numero_paginas_sentenças()
     paginas = colorir(paginas, 'dodger_blue2')
     sentenças = colorir(sentenças, 'dodger_blue2')
-    return f"Total: paginas - {paginas}, sentenças - {sentenças}"
+    texto = (
+        f"Total: paginas - {paginas}, sentenças da página atual - {sentenças}"
+    )
+    return texto
 
 
 class TelaBoasVindas(Screen):
@@ -213,9 +238,10 @@ class TelaBoasVindas(Screen):
         self.barra_progresso.advance(
             porcentagem.porcentagem_atual
         )
-        pagina = contagens._indexes_paginas[contagens.pagina_atual]
-        pagina = colorir(pagina, 'dodger_blue2')
+        # pagina e sentença corrigidos para o usuário.
+        pagina = contagens.numero_atual + 1
         sentença = contagens.contagem_atual.numero_atual + 1
+        pagina = colorir(pagina, 'dodger_blue2')
         sentença = colorir(sentença, 'dodger_blue2')
         nome_arquivo = contagens.nome_arquivo.stem
         extensão = contagens.nome_arquivo.suffix
@@ -250,14 +276,6 @@ class TelaBoasVindas(Screen):
         self.barra_progresso.advance(
             porcentagem.calcular(contagens.numero_atual_)
         )
-    
-    def _atualizar_label_status(self) -> None:
-        """Atualiza o texto do label principal."""
-        pagina = contagens._indexes_paginas[contagens.pagina_atual]
-        sentença = contagens.contagem_atual.numero_atual + 1
-        texto = self.forma.format(pagina, sentença)
-        texto += ' ' + retornar_numero_paginas_sentenças()
-        self.label_status.update(texto)
 
     def _esperar_retomar(self) -> None:
         """Espera um tempo até que o usuário despause."""
@@ -303,6 +321,9 @@ class LeitorApp(App):
     }
     tela_boas_vindas.label_status = tela_principal.label_status
     tela_boas_vindas.barra_progresso = tela_principal.barra_progresso
+    tela_boas_vindas._atualizar_label_status = (
+        tela_principal._atualizar_label_status
+    )
     tela_principal.executar_fala = tela_boas_vindas.executar_fala
 
     def __init__(self, argumentos: Namespace, *args, **kwargs) -> None:

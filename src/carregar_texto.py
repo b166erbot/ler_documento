@@ -33,7 +33,11 @@ def injetar_argumentos(argumentos_: Namespace) -> None:
         ((numero, 0, len(pagina) - 1) for numero, pagina in textos),
         nome_arquivo
     )
-    if not existe_arquivo(Path('progresso.json')):
+    condições_if = [
+        not existe_arquivo(Path('progresso.json')),
+        argumentos.zerar_progresso
+    ]
+    if any(condições_if):
         contagens.definir_progresso([0, 0])
         porcentagem = Porcento(contagens.numero_maximo, 0)
     else:

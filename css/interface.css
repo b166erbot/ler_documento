@@ -29,7 +29,7 @@ coloca um scroolwindow. O porquê disso não sei */
 #container_progresso {
     layout: grid;
     grid-size: 0 3;
-    height: 3;
+    height: 6;
 }
 
 #leitor_tela_principal {
@@ -57,17 +57,17 @@ coloca um scroolwindow. O porquê disso não sei */
     align: center middle;
 }
 
+#loading_carregamento {
+    height: 3;
+    width: 20;
+}
+
 #label_inicio {
     border: round $warning;
 }
 
 #label_sentencas {
-    height: 3;
-}
-
-#loading_carregamento {
-    height: 3;
-    width: 20;
+    min-height: 3;
 }
 
 #label_erro {

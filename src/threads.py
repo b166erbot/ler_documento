@@ -24,7 +24,7 @@ def sair(contagens: ContagensFinitas):
     salvar_progresso(
         contagens.nome_arquivo,
         [
-            contagens.pagina_atual,
+            contagens.numero_atual,
             contagens.contagem_atual.numero_atual
         ]
     )
@@ -48,7 +48,7 @@ def voltar(contagens: ContagensFinitas) -> None:
 
 def avancar(contagens: ContagensFinitas) -> None:
     """Avança um número na contagem."""
-    contagens.contagem_atual.proximo_sem_restricao
+    contagens.proximo_sem_restricao
     resto_codigo_acao(contagens)
 
 

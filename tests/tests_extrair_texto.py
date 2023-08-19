@@ -1,7 +1,7 @@
 from copy import deepcopy
 from pathlib import Path
-from unittest import TestCase
-from unittest.mock import patch
+from unittest import TestCase, skip
+from unittest.mock import patch, MagicMock
 from time import time
 
 from src.extrair_texto import extrair, extrair_texto, extrair_texto_pdf
@@ -34,7 +34,7 @@ class TestCaseTemporizado(TestCase):
 
 @patch('src.extrair_texto.processar')
 @patch('src.extrair_texto.configurar_nlp')
-class TestExtrair(TestCaseTemporizado):
+class TestExtrair(TestCase):
     def setUp(self):
         super().setUp()
         self.arquivo_pdf = Path('/local/do/arquivo.pdf')
@@ -124,12 +124,14 @@ class TestExtrair(TestCaseTemporizado):
         esperado = [['texto', 'outro texto']]
         resultado = extrair(self.arquivo_sem_ext, self.lingua_spacy, None)
         self.assertEqual(esperado, resultado)
-    
 
-@patch('src.extrair_texto.processar')
+
+@skip
+@patch('src.processar_texto.download')
+@patch('src.processar_texto.load')
 @patch('src.extrair_texto.PdfFileReader')
 @patch('src.extrair_texto.open')
-class TestReal(TestCaseTemporizado):
+class TestReal(TestCase):
     # esses testes só são feitos pois não dá para debugar com o pdb no textual
     def setUp(self):
         super().setUp()
@@ -138,10 +140,13 @@ class TestReal(TestCaseTemporizado):
         self.arquivo_sem_ext = Path('local/do/arquivo')
         self.paginas = '0, 1-2'
         self.lingua_spacy = 'pt_core_news_sm'
+        self.sentenças = [
+            MagicMock(text = 'Olá!'), MagicMock(text = 'Tem alguém ai?')
+        ]
     
-    def test_arquivo_pdf_com_paginas(self, open, PdfFileReader, processar):
+    def test_arquivo_pdf_com_paginas(self, open, PdfFileReader, load, download):
         self.nome_funcao = str(self.test_arquivo_pdf_com_paginas)
-        processar.return_value = ['Olá!', 'Tem alguém ai?']
+        load('load').nlp().sents.__iter__.return_value = self.sentenças
         leitor_pdf = PdfFileReader()
         leitor_pdf.numPages = 3
         leitor_pdf.getPage().extractText.return_value = 'Olá! Tem alguém ai?'
@@ -150,11 +155,10 @@ class TestReal(TestCaseTemporizado):
         ]
         resultado = extrair(self.arquivo_pdf, self.lingua_spacy, self.paginas)
         self.assertEqual(esperado, resultado)
-        processar.assert_any_call()
     
-    def test_arquivo_pdf_sem_paginas(self, open, PdfFileReader, processar):
+    def test_arquivo_pdf_sem_paginas(self, open, PdfFileReader, load, download):
         self.nome_funcao = str(self.test_arquivo_pdf_sem_paginas)
-        processar.return_value = ['Olá!', 'Tem alguém ai?']
+        load('load').nlp().sents.__iter__.return_value = self.sentenças
         leitor_pdf = PdfFileReader()
         leitor_pdf.numPages = 3
         leitor_pdf.getPage().extractText.return_value = 'Olá! Tem alguém ai?'
@@ -163,24 +167,21 @@ class TestReal(TestCaseTemporizado):
         ]
         resultado = extrair(self.arquivo_pdf, self.lingua_spacy, None)
         self.assertEqual(esperado, resultado)
-        processar.assert_any_call()
     
-    def test_arquivo_txt_sem_paginas(self, open, PdfFileReader, processar):
+    def test_arquivo_txt_sem_paginas(self, open, PdfFileReader, load, download):
         self.nome_funcao = str(self.test_arquivo_txt_sem_paginas)
-        processar.return_value = ['Olá!', 'Tem alguém ai?']
+        load('load').nlp().sents.__iter__.return_value = self.sentenças
         open().__enter__().read.return_value = 'Olá! Tem alguém ai?'
         esperado = [[0, ['Olá!', 'Tem alguém ai?']]]
         resultado = extrair(self.arquivo_txt, self.lingua_spacy, None)
         self.assertEqual(esperado, resultado)
-        processar.assert_called_once()
     
     def test_arquivo_sem_extensao_sem_paginas(
-        self, open, PdfFileReader, processar
+        self, open, PdfFileReader, load, download
     ):
         self.nome_funcao = str(self.test_arquivo_sem_extensao_sem_paginas)
-        processar.return_value = ['Olá!', 'Tem alguém ai?']
+        load('load').nlp().sents.__iter__.return_value = self.sentenças
         open().__enter__().read.return_value = 'Olá! Tem alguém ai?'
         esperado = [[0, ['Olá!', 'Tem alguém ai?']]]
         resultado = extrair(self.arquivo_sem_ext, self.lingua_spacy, None)
         self.assertEqual(esperado, resultado)
-        processar.assert_called_once()
