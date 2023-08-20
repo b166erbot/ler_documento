@@ -1,15 +1,17 @@
+import os
 import re
 from itertools import chain, dropwhile, takewhile
 from pathlib import Path
-from subprocess import getoutput
 from time import sleep
 from typing import Any, Optional
 
 
 def esta_instalado(programa: str) -> bool:
-    """Retorna verdadeiro caso o programa esteja instalado no pc."""
-    resposta = getoutput(f'apt list {programa} --installed')
-    return programa in resposta
+    """Verifica se o programa está instalado no pc."""
+    for local in os.environ["PATH"].split(os.pathsep):
+        if programa in os.listdir(local):
+            return True
+    return False
 
 
 def tratar_paginas_usuario(paginas: str) -> list[int]:

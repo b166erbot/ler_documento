@@ -1,9 +1,5 @@
 import subprocess
 
-# Não use o parar_fala pois há um bug onde, depois de executado, ele inicia
-# a próxima fala logo em seguida, impedindo que o usuário avance ou retroceda
-# corretamente.
-
 
 def parar_fala() -> None:
     """Para um processo do espeak e interrompe a fala."""

@@ -13,9 +13,9 @@ from textual.containers import Grid, Horizontal, Vertical, VerticalScroll
 from textual.css.query import NoMatches
 from textual.reactive import var
 from textual.screen import Screen
-from textual.widgets import (Button, Label, LoadingIndicator, ProgressBar,
-                             Static, Input)
 from textual.validation import Number
+from textual.widgets import (Button, Input, Label, LoadingIndicator,
+                             ProgressBar, Static)
 
 from src.falar import parar_fala
 from src.threads import (avancar, avancar_pagina, gerenciar_falas, sair,
@@ -30,7 +30,7 @@ injetar_argumentos: Callable
 retornar_contagens_porcento: Callable
 retornar_textos_argumentos: Callable
 # bug no label, se tirar o \n do final, ele não exibe a última linha.
-with open(str(local_programa / 'texto_bem_vindo.txt')) as arquivo:
+with open(str(local_programa / 'textos' / 'texto_bem_vindo.txt')) as arquivo:
     forma_texto_inicio = arquivo.read()
 
 
@@ -257,9 +257,9 @@ class TelaBoasVindas(Screen):
         texto_inicio = forma_texto_inicio.format(
             nome_arquivo, pagina, sentença
         )
-        with Grid(id = 'grid_comeco') as container:
+        with Grid(id = 'grid_boas_vindas') as container:
             container.border_title = 'Inicio'
-            yield Label(texto_inicio, id = 'label_inicio')
+            yield Label(texto_inicio, id = 'label_boas_vindas')
             yield Button('começar', id = 'botao_comecar', variant = 'success')
 
     @on(Button.Pressed, '#botao_comecar')

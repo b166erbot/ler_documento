@@ -7,8 +7,7 @@ from argparse import Namespace
 from pathlib import Path
 
 from src.extrair_texto import extrair
-from src.salvar import (carregar_progresso, existe_arquivo, obter_texto,
-                        salvar)
+from src.salvar import carregar_progresso, existe_arquivo, obter_texto, salvar
 from src.utils import ContagensFinitas, Porcento, Temporizador
 
 argumentos: Namespace

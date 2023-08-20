@@ -42,8 +42,7 @@ coloca um scroolwindow. O porquê disso não sei */
     min-width: 25;
 }
 
-#grid_comeco {
-    grid-gutter: 1 2;
+#grid_boas_vindas {
     border: panel $warning;
     border-title-align: center;
     align: center middle;
@@ -62,8 +61,9 @@ coloca um scroolwindow. O porquê disso não sei */
     width: 20;
 }
 
-#label_inicio {
+#label_boas_vindas {
     border: round $warning;
+    min-height: 12;
 }
 
 #label_sentencas {

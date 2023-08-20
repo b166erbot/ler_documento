@@ -1,11 +1,10 @@
 from copy import deepcopy
 from pathlib import Path
-from unittest import TestCase, skip
-from unittest.mock import patch, MagicMock
 from time import time
+from unittest import TestCase, skip
+from unittest.mock import MagicMock, patch
 
 from src.extrair_texto import extrair, extrair_texto, extrair_texto_pdf
-
 
 tempos = Path('tempos_dos_arquivos.txt')
 if tempos.is_file():

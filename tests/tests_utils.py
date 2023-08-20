@@ -3,7 +3,6 @@ from unittest import TestCase
 
 from src.utils import ContagensFinitas, Porcento, recortar
 
-
 # vou testar tudo nessa desgrama, cancei de fazer testes manuais.
 # quando chegar no proximo/proximo_sem_restricao/definir_progresso, dá uma
 # olhada.
