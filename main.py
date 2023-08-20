@@ -45,6 +45,10 @@ def main() -> None:
         help = 'Reinicia o progresso do arquivo para o início.'
     )
     argumentos = parser.parse_args()
+    # from src.carregar_texto import injetar_argumentos, retornar_contagens_porcento
+    # injetar_argumentos(argumentos)
+    # contagens, _ = retornar_contagens_porcento()
+    # import pdb; pdb.set_trace()
     app = LeitorApp(argumentos)
     app.run()
 
@@ -59,3 +63,5 @@ main()
 # eu ler com cautela depois.
 # TODO: colocar um botão só para o play e pause. por causa de bugs, eu resolvi
 # não colocar.
+# TODO: bug no páginas. bug no páginas com o progresso. bug nas páginas com
+# validators.

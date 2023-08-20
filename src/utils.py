@@ -181,11 +181,16 @@ class ContagensFinitas:
                 index: numero_pagina for index, numero_pagina
                 in enumerate(self._contagens)
             }
+            self._indexes_contagens_inverso = {
+                numero_pagina: index for index, numero_pagina
+                in enumerate(self._contagens)
+            }
             self.contagem_atual = self._contagens[self._indexes_contagens[0]]
             self._numero_inicial = 0
             self._numero_final = len(self._contagens) - 1
             self.numero_atual = 0
             self.nome_arquivo = nome_arquivo
+            self.repetir = False
 
     @property
     def proximo(self) -> list[slice]:
@@ -284,8 +289,6 @@ class ContagensFinitas:
         ])
         return tem_proximo
 
-    # Não há necessidade de retornar slices na próxima_página e página_anterior.
-    # Refatorar ou irá precisar no futuro?
     @property
     def proxima_pagina(self) -> list[slice]:
         """Retorna os recortes para a próxima página."""
@@ -309,6 +312,7 @@ class ContagensFinitas:
         else:
             self.contagem_atual.ir_para_o_final()
             self.contagem_atual.repetir = True
+            self.repetir = True
             slice1 = slice(self.numero_atual, self.numero_atual + 1)
             numero_slice2 = self.contagem_atual.numero_atual
             slice2 = slice(numero_slice2, numero_slice2 + 1)
@@ -317,7 +321,17 @@ class ContagensFinitas:
     @property
     def pagina_anterior(self) -> list[slice]:
         """Retorna os recortes para a página anterior."""
-        if self.tem_pagina_anterior:
+        # corrigindo um bug onde ao voltar uma página quando se está no fim,
+        # ele retornava duas.
+        if self.repetir:
+            self.repetir = False
+            self.contagem_atual.ir_para_o_inicio()
+            self.contagem_atual.repetir = True
+
+            slice1 = slice(self.numero_atual, self.numero_atual + 1)
+            numero_slice2 = self.contagem_atual.proximo
+            slice2 = slice(numero_slice2, numero_slice2 + 1)
+        elif self.tem_pagina_anterior:
             # Colocar a contagem da página atual no primeiro e ativar o repetir.
             self.contagem_atual.ir_para_o_inicio()
             self.contagem_atual.repetir = True
@@ -366,6 +380,8 @@ class ContagensFinitas:
             self._definir_progresso_paginas(progresso[0])
         elif progresso[1] != None:
             self._definir_progresso_sentença(progresso[1])
+        if self.numero_atual == self._numero_final:
+            self.repetir = True
     
     def _definir_progresso_paginas(self, pagina: int) -> None:
         """Define o progresso da página."""

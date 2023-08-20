@@ -8,7 +8,8 @@ from pathlib import Path
 
 from src.extrair_texto import extrair
 from src.salvar import carregar_progresso, existe_arquivo, obter_texto, salvar
-from src.utils import ContagensFinitas, Porcento, Temporizador
+from src.utils import (ContagensFinitas, Porcento, Temporizador,
+                       tratar_paginas_usuario)
 
 argumentos: Namespace
 textos: list[list[str]]
@@ -23,15 +24,24 @@ def injetar_argumentos(argumentos_: Namespace) -> None:
     argumentos = argumentos_
     nome_arquivo = Path(argumentos.arquivo.strip()).expanduser().absolute()
     textos_ = obter_texto(nome_arquivo)
-    if any([argumentos.forcar_salvamento, textos_ is None]):
+    condições_if = [
+        argumentos.forcar_salvamento, textos_ == None
+    ]
+    if any(condições_if):
         textos = extrair(
             nome_arquivo, argumentos.lingua_spacy, argumentos.paginas
         )
         salvar(textos, nome_arquivo)
     else:
         textos = textos_
+    if argumentos.paginas != None:
+        paginas = tratar_paginas_usuario(argumentos.paginas)
+        textos = list(filter(
+            lambda numero_texto: numero_texto[0] in paginas,
+            textos
+        ))
     contagens = ContagensFinitas(
-        ((numero, 0, len(pagina) - 1) for numero, pagina in textos),
+        ((numero, 0, len(sentenças) - 1) for numero, sentenças in textos),
         nome_arquivo
     )
     condições_if = [

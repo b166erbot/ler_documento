@@ -75,15 +75,15 @@ def extrair(
     """Retorna textos de um arquivo."""
     configurar_nlp(lingua_spacy)
     # discerne se tem ou se não tem páginas passadas pelo usuário.
-    if all([bool(paginas), local.suffix in ['.pdf']]):
-        numeros_paginas = tratar_paginas_usuario(paginas)
+    # if all([bool(paginas), local.suffix in ['.pdf']]):
+    #     numeros_paginas = tratar_paginas_usuario(paginas)
 
-        textos = []
-        for numero in numeros_paginas:
-            textos_ = extensoes_e_funcoes[local.suffix](
-                local, numero
-            )
-            textos.append(textos_)
-    else:
-        textos = extensoes_e_funcoes[local.suffix](local)
+    #     textos = []
+    #     for numero in numeros_paginas:
+    #         textos_ = extensoes_e_funcoes[local.suffix](
+    #             local, numero
+    #         )
+    #         textos.append(textos_)
+    # else:
+    textos = extensoes_e_funcoes[local.suffix](local)
     return textos

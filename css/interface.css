@@ -2,6 +2,7 @@
 
 Screen {
     align: center middle;
+    height: auto;
 }
 
 /* colunas, linhas no grid-size */
@@ -29,7 +30,6 @@ coloca um scroolwindow. O porquê disso não sei */
 #container_progresso {
     layout: grid;
     grid-size: 0 3;
-    height: 6;
 }
 
 #leitor_tela_principal {
@@ -38,7 +38,7 @@ coloca um scroolwindow. O porquê disso não sei */
     border-title-align: center;
     padding: 1 1;
     align: center middle;
-    min-height: 15;
+    min-height: 20;
     min-width: 25;
 }
 

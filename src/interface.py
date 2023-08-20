@@ -13,7 +13,7 @@ from textual.containers import Grid, Horizontal, Vertical, VerticalScroll
 from textual.css.query import NoMatches
 from textual.reactive import var
 from textual.screen import Screen
-from textual.validation import Number
+from textual.validation import Function, Number
 from textual.widgets import (Button, Input, Label, LoadingIndicator,
                              ProgressBar, Static)
 
@@ -42,7 +42,7 @@ class TelaPrincipal(Screen):
     ) -> None:
         self._variaveis_compartilhadas = variaveis_compartilhadas
         super().__init__(*args, **kwargs)
-        self.forma = "Página = {}, sentença = {}"
+        self.forma = "Status atual: página = {}, sentença = {}"
         self.label_status = Label('', id = 'label_status')
         self.barra_progresso = ProgressBar(
             id = 'barra_de_progresso', total = 100, show_eta = False
@@ -72,7 +72,9 @@ class TelaPrincipal(Screen):
                     )
                     yield Input(
                         id = 'input_pagina',
-                        validators = [Number(1, numero_paginas)],
+                        validators = [Function(
+                            self.pagina_valida, 'Não é uma página válida.'
+                        )],
                         placeholder = 'página'
                     )
                     yield Input(
@@ -99,14 +101,14 @@ class TelaPrincipal(Screen):
 
     def _atualizar_label_status(self) -> None:
         """Atualiza o texto do label principal."""
-        pagina = contagens.numero_atual + 1
+        pagina = contagens._indexes_contagens[contagens.numero_atual]
         sentença = contagens.contagem_atual.numero_atual + 1
         pagina = colorir(pagina, 'dodger_blue2')
         sentença = colorir(sentença, 'dodger_blue2')
         texto = self.forma.format(pagina, sentença)
         texto += '\n' + paginas_sentencas_para_o_usuario()
         self.label_status.update(texto)
-    
+
     def _atualizar_label_sentenças(self, texto) -> None:
         label_sentenças = self.query_one('#label_sentencas', Label)
         if len(texto) > 234:
@@ -177,7 +179,7 @@ class TelaPrincipal(Screen):
             self._variaveis_compartilhadas['pausar'] = False
             self._atualizar_label_status()
             parar_fala()
-        
+
     @on(Input.Changed, '#input_pagina')
     def input_pagina_modificada(self, evento: Input.Changed) -> None:
         """Troca de página conforme o usuário deseja."""
@@ -185,11 +187,14 @@ class TelaPrincipal(Screen):
         input_sentença = self.query_one('#input_sentenca', Input)
         if evento.validation_result.is_valid:
             # evento.value corrigido para o programa.
-            contagens._definir_progresso_paginas(int(evento.value) - 1)
+            contagens._definir_progresso_paginas(
+                contagens._indexes_contagens_inverso[int(evento.value)]
+            )
             # Number corrigido para o usuário.
             input_sentença.validators = [
                 Number(1, contagens.contagem_atual._numero_final + 1)
             ]
+            input_sentença.value = '1'
             self._atualizar_label_status()
             self.barra_progresso.advance(
                 porcentagem.calcular(contagens.numero_atual_)
@@ -208,6 +213,15 @@ class TelaPrincipal(Screen):
                 porcentagem.calcular(contagens.numero_atual_)
             )
             self._atualizar_label_status()
+    
+    @staticmethod
+    def pagina_valida(valor: str) -> bool:
+        if not valor.isnumeric():
+            return False
+        if int(valor) in contagens._indexes_contagens.values():
+            return True
+        else:
+            return False
 
 
 def retornar_numero_paginas_sentenças() -> list[int]:
@@ -222,7 +236,7 @@ def paginas_sentencas_para_o_usuario() -> str:
     paginas = colorir(paginas, 'dodger_blue2')
     sentenças = colorir(sentenças, 'dodger_blue2')
     texto = (
-        f"Total: paginas - {paginas}, sentenças da página atual - {sentenças}"
+        f"Total: paginas = {paginas}, sentenças da página atual = {sentenças}"
     )
     return texto
 
@@ -243,7 +257,7 @@ class TelaBoasVindas(Screen):
             porcentagem.porcentagem_atual
         )
         # pagina e sentença corrigidos para o usuário.
-        pagina = contagens.numero_atual + 1
+        pagina = contagens._indexes_contagens[contagens.numero_atual]
         sentença = contagens.contagem_atual.numero_atual + 1
         pagina = colorir(pagina, 'dodger_blue2')
         sentença = colorir(sentença, 'dodger_blue2')
