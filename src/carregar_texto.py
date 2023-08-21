@@ -37,7 +37,7 @@ def injetar_argumentos(argumentos_: Namespace) -> None:
     if argumentos.paginas != None:
         paginas = tratar_paginas_usuario(argumentos.paginas)
         textos = list(filter(
-            lambda numero_texto: numero_texto[0] in paginas,
+            lambda numero_texto: (numero_texto[0] + 1) in paginas,
             textos
         ))
     contagens = ContagensFinitas(
@@ -46,7 +46,7 @@ def injetar_argumentos(argumentos_: Namespace) -> None:
     )
     condições_if = [
         not existe_arquivo(Path('progresso.pkl')),
-        argumentos.zerar_progresso
+        argumentos.zerar_progresso, argumentos.paginas != None
     ]
     if any(condições_if):
         contagens.definir_progresso([0, 0])

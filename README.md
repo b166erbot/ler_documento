@@ -5,20 +5,22 @@ Ler um documento para você enquanto você faz alguma outra coisa.
 - Extrair o texto de um arquivo e ler ele para você.
 
 ## Dependências:
+- poetry
 - Instalar o programa espeak
 - Instalar o mbrola junto com a voz que deseja. Ex: mbrola-br1 (recomendado para português brasileiro.)
 
 ## Como instalar as dependências:
-- Linux: sudo apt install espeak mbrola \[mbrola-br1\]
+- Linux: sudo apt install espeak mbrola \[mbrola-br1\] python3-poetry
 > Por enquanto só funciona em distribuições derivadas de debian, como debian, ubuntu, linux-mint, kali-linux, etc.
 - Windows: Por enquanto não tem suporte.
 
-## Como instalar:
+## Como instalar o programa:
 - poetry install
 
 ## Como rodar:
 - primeiro ative o ambiente virtual: poetry shell
 - depois: python3 main.py --arquivo arquivo(.pdf, .txt, sem_extensão)
+- ou não ative o ambiente e rode ele direto: poetry run python3 main.py --arquivo arquivo(.pdf, .txt, sem_extensão)
 > pretendo adicionar mais extensões futuramente.
 
 ## Argumentos:
@@ -37,7 +39,7 @@ Ler um documento para você enquanto você faz alguma outra coisa.
 - retroceder páginas.
 - ir para a página e sentença diretamente.
 - "pausar" uma fala. (ele não pausa, ele interrompe a fala.)
-- "continuar" uma fala. (ele não continua, ele começa a fala da sentença do início.)
+- "continuar" uma fala. (ele não continua, ele começa a fala da sentença no início.)
 - salvar o progresso automaticamente quando o usuário sair do programa com o **ctrl+c**. Nada de sair fechando a janela pois o progresso é perdido.
 - extrai o texto uma vez, salva ele em um arquivo *.pkl* com o nome do hash do arquivo do texto obtido, e na próxima vez que o programa abre, só carrega o arquivo.
 - indentifica se o arquivo é repetido caso você tenha arquivos com o nome diferente mas com o mesmo conteúdo.

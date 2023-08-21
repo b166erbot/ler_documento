@@ -6,7 +6,6 @@ from typing import Optional, Union
 from PyPDF4 import PdfFileReader
 
 from src.processar_texto import configurar_nlp, processar
-from src.utils import tratar_paginas_usuario
 
 lista_strings_opcional = list[Optional[str], Optional[list[str]]]
 
@@ -74,16 +73,5 @@ def extrair(
 ) -> list[int, list[str]]:
     """Retorna textos de um arquivo."""
     configurar_nlp(lingua_spacy)
-    # discerne se tem ou se não tem páginas passadas pelo usuário.
-    # if all([bool(paginas), local.suffix in ['.pdf']]):
-    #     numeros_paginas = tratar_paginas_usuario(paginas)
-
-    #     textos = []
-    #     for numero in numeros_paginas:
-    #         textos_ = extensoes_e_funcoes[local.suffix](
-    #             local, numero
-    #         )
-    #         textos.append(textos_)
-    # else:
     textos = extensoes_e_funcoes[local.suffix](local)
     return textos

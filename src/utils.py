@@ -378,11 +378,11 @@ class ContagensFinitas:
         """Define o progresso."""
         if progresso[0] != None:
             self._definir_progresso_paginas(progresso[0])
-        elif progresso[1] != None:
+        if progresso[1] != None:
             self._definir_progresso_sentença(progresso[1])
         if self.numero_atual == self._numero_final:
             self.repetir = True
-    
+
     def _definir_progresso_paginas(self, pagina: int) -> None:
         """Define o progresso da página."""
         self.contagem_atual = self._contagens[

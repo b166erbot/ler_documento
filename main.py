@@ -38,17 +38,17 @@ def main() -> None:
     )
     parser.add_argument(
         '-p', '--paginas',
-        help = 'Paginas a serem recortadas. Ex: "0, 2-5, 7, 8-9, 1".'
+        help = (
+            'Paginas a serem recortadas. Ex: "0, 2-5, 7, 8-9, 1". '
+            'Caso use essa opção, o usuário precisa saber as páginas'
+            'que irá avançar pois o programa não irá informar.'
+        )
     )
     parser.add_argument(
         '-z', '--zerar-progresso', action = 'store_true',
         help = 'Reinicia o progresso do arquivo para o início.'
     )
     argumentos = parser.parse_args()
-    # from src.carregar_texto import injetar_argumentos, retornar_contagens_porcento
-    # injetar_argumentos(argumentos)
-    # contagens, _ = retornar_contagens_porcento()
-    # import pdb; pdb.set_trace()
     app = LeitorApp(argumentos)
     app.run()
 
@@ -57,11 +57,7 @@ main()
 
 
 # TODO: colocar mais tipos de arquivos.
-# TODO: salvar o arquivo inteiro, porém, carregar somente partes dele
-# na memória.
 # TODO: fazer com que ele armazene a folha/"numero da linha" para
 # eu ler com cautela depois.
 # TODO: colocar um botão só para o play e pause. por causa de bugs, eu resolvi
 # não colocar.
-# TODO: bug no páginas. bug no páginas com o progresso. bug nas páginas com
-# validators.

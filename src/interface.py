@@ -10,8 +10,6 @@ from typing import Any, Callable
 from textual import on, work
 from textual.app import App, ComposeResult
 from textual.containers import Grid, Horizontal, Vertical, VerticalScroll
-from textual.css.query import NoMatches
-from textual.reactive import var
 from textual.screen import Screen
 from textual.validation import Function, Number
 from textual.widgets import (Button, Input, Label, LoadingIndicator,
@@ -101,7 +99,7 @@ class TelaPrincipal(Screen):
 
     def _atualizar_label_status(self) -> None:
         """Atualiza o texto do label principal."""
-        pagina = contagens._indexes_contagens[contagens.numero_atual]
+        pagina = contagens._indexes_contagens[contagens.numero_atual] + 1
         sentença = contagens.contagem_atual.numero_atual + 1
         pagina = colorir(pagina, 'dodger_blue2')
         sentença = colorir(sentença, 'dodger_blue2')
@@ -188,7 +186,7 @@ class TelaPrincipal(Screen):
         if evento.validation_result.is_valid:
             # evento.value corrigido para o programa.
             contagens._definir_progresso_paginas(
-                contagens._indexes_contagens_inverso[int(evento.value)]
+                contagens._indexes_contagens_inverso[int(evento.value) - 1]
             )
             # Number corrigido para o usuário.
             input_sentença.validators = [
@@ -218,14 +216,14 @@ class TelaPrincipal(Screen):
     def pagina_valida(valor: str) -> bool:
         if not valor.isnumeric():
             return False
-        if int(valor) in contagens._indexes_contagens.values():
+        if int(valor) - 1 in contagens._indexes_contagens.values():
             return True
         else:
             return False
 
 
 def retornar_numero_paginas_sentenças() -> list[int]:
-    paginas = contagens._numero_final + 1
+    paginas = len(contagens._contagens)
     sentenças = contagens.contagem_atual.retornar_numero_final + 1
     return [paginas, sentenças]
 
@@ -257,7 +255,7 @@ class TelaBoasVindas(Screen):
             porcentagem.porcentagem_atual
         )
         # pagina e sentença corrigidos para o usuário.
-        pagina = contagens._indexes_contagens[contagens.numero_atual]
+        pagina = contagens._indexes_contagens[contagens.numero_atual] + 1
         sentença = contagens.contagem_atual.numero_atual + 1
         pagina = colorir(pagina, 'dodger_blue2')
         sentença = colorir(sentença, 'dodger_blue2')
@@ -351,7 +349,7 @@ class LeitorApp(App):
         self._argumentos = argumentos
         self._label_erro = self.SCREENS['tela erro']._label_erro
         super().__init__(*args, **kwargs)
-        
+
     def on_mount(self) -> None:
         """Executa tarefas na montagem das telas."""
         self.push_screen('tela carregando')
@@ -376,7 +374,7 @@ class LeitorApp(App):
         sleep(0.5)
         # colocar para trocar de tela aqui sem o lambda, gera um erro.
         self.call_later(lambda: self.switch_screen('tela boas vindas'))
-    
+
     def verificando_argumentos(self) -> None:
         """Verifica se o usuário enviou argumentos corretamente."""
         label_carregamento = self.query_one('#label_carregamento', Label)
@@ -425,7 +423,7 @@ class LeitorApp(App):
             return
         label_carregamento.update(colorir('Verificando arquivo', 'green'))
         sleep(0.3)
-    
+
     def fazer_importações_e_carregar_texto(self) -> None:
         """Fazer as importações demoradas e extrair/carregar o texto."""
         label_carregamento = self.query_one('#label_carregamento', Label)
@@ -445,7 +443,7 @@ class LeitorApp(App):
             'Carregando ou extraindo o texto', 'green'
         ))
         sleep(0.3)
-    
+
     def erro_sair(self) -> None:
         """Exibe uma mensagem de erro na tela e sai."""
         # colocar para trocar de tela aqui sem o lambda, gera um erro.
