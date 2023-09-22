@@ -1,6 +1,6 @@
 """Módulo feito para corrigir import circular."""
 
-# Este módulo não deveria existir mais. Refatorar depois.
+# Refatorar este módulo depois.
 
 
 from argparse import Namespace
@@ -8,8 +8,8 @@ from pathlib import Path
 
 from src.extrair_texto import extrair
 from src.salvar import carregar_progresso, existe_arquivo, obter_texto, salvar
-from src.utils import (ContagensFinitas, Porcento, Temporizador,
-                       tratar_paginas_usuario)
+from src.utils import (
+    ContagensFinitas, Porcento, Temporizador, tratar_páginas_usuario)
 
 argumentos: Namespace
 textos: list[list[str]]
@@ -29,37 +29,38 @@ def injetar_argumentos(argumentos_: Namespace) -> None:
     ]
     if any(condições_if):
         textos = extrair(
-            nome_arquivo, argumentos.lingua_spacy, argumentos.paginas
+            nome_arquivo, argumentos.lingua_spacy
         )
         salvar(textos, nome_arquivo)
     else:
         textos = textos_
-    if argumentos.paginas != None:
-        paginas = tratar_paginas_usuario(argumentos.paginas)
+    if argumentos.páginas != None:
+        páginas = tratar_páginas_usuario(argumentos.páginas)
         textos = list(filter(
-            lambda numero_texto: (numero_texto[0] + 1) in paginas,
+            lambda número_texto: (número_texto[0] + 1) in páginas,
             textos
         ))
     contagens = ContagensFinitas(
-        ((numero, 0, len(sentenças) - 1) for numero, sentenças in textos),
+        ((número, 0, len(sentenças) - 1) for número, sentenças in textos),
         nome_arquivo
     )
     condições_if = [
         not existe_arquivo(Path('progresso.pkl')),
-        argumentos.zerar_progresso, argumentos.paginas != None
+        argumentos.zerar_progresso, argumentos.páginas != None
     ]
     if any(condições_if):
         contagens.definir_progresso([0, 0])
-        porcentagem = Porcento(contagens.numero_maximo, 0)
+        porcentagem = Porcento(contagens.número_maximo, 0)
     else:
         progresso = carregar_progresso(nome_arquivo)
         if all([progresso != None, not argumentos.forcar_salvamento]):
             # decidi que não vou colocar o progresso no init do contagens.
             contagens.definir_progresso(progresso)
-        porcentagem = Porcento(contagens.numero_maximo, contagens.numero_atual_)
+        porcentagem = Porcento(contagens.número_maximo, contagens.número_atual_)
         if porcentagem.finalizou:
             contagens.definir_progresso([0, 0])
-            porcentagem = Porcento(contagens.numero_maximo, 0)
+            porcentagem = Porcento(contagens.número_maximo, 0)
+    return [argumentos, textos, nome_arquivo, contagens, porcentagem]
 
 
 def retornar_contagens_porcento() -> list[ContagensFinitas, Porcento]:

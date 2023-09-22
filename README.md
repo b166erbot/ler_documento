@@ -29,7 +29,7 @@ Ler um documento para você enquanto você faz alguma outra coisa.
 - -le ou --lingua-espeak: Língua pela qual o espeak irá falar. default = mb-br1.
 - -ls ou --lingua-spacy: Língua pela qual o spacy irá tratar o arquivo. default = pt_core_news_sm.
 - -v ou --velocidade: Velocidade pela qual o programa irá ler o conteúdo. default = 130.
-- -p ou --paginas: Páginas pelas quais o programa irá ler.
+- -p ou --páginas: Páginas pelas quais o programa irá ler.
 - -z ou --zerar-progresso: Força o programa a reiniciar o progresso da leitura.
 
 ## Recursos:

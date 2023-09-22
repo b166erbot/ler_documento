@@ -7,19 +7,30 @@ readme = "README.md"
 packages = [{include = "ler_documento"}]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = ">=3.11,<3.13"
 pypdf4 = "^1.27.0"
 spacy = "^3.6.0"
-textual = "^0.32.0"
-
+textual = "^0.37.1"
 
 [tool.poetry.group.dev.dependencies]
-bpython = "^0.24"
 radon = "^6.0.1"
 pycodestyle = "^2.11.0"
 isort = "^5.12.0"
 textual-dev = "^1.1.0"
 pydeps = "^1.12.13"
+bpython = "^0.24"
+coverage = "^7.3.1"
+
+[tool.isort]
+line_length = 80
+multi_line_output = 4
+
+[tool.coverage.run]
+source = ["."]
+omit = ["*tests*", "*__init__.py", "estruturas.py"]
+
+[tool.coverage.report]
+omit = ["*tests*", "*__init__.py", "estruturas.py"]
 
 [build-system]
 requires = ["poetry-core"]

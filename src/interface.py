@@ -12,14 +12,14 @@ from textual.app import App, ComposeResult
 from textual.containers import Grid, Horizontal, Vertical, VerticalScroll
 from textual.screen import Screen
 from textual.validation import Function, Number
-from textual.widgets import (Button, Input, Label, LoadingIndicator,
-                             ProgressBar, Static)
+from textual.widgets import (
+    Button, Input, Label, LoadingIndicator, ProgressBar, Static)
 
 from src.falar import parar_fala
-from src.threads import (avancar, avancar_pagina, gerenciar_falas, sair,
-                         voltar, voltar_pagina)
-from src.utils import (ContagensFinitas, Porcento, colorir, esta_instalado,
-                       paginas_invalidas)
+from src.threads import GerenciarFalas
+from src.utils import (
+    ContagensFinitas, Porcento, colorir, está_instalado, páginas_invalidas)
+
 
 local_programa = Path(__file__).parent.parent
 contagens: ContagensFinitas
@@ -27,6 +27,7 @@ porcentagem: Porcento
 injetar_argumentos: Callable
 retornar_contagens_porcento: Callable
 retornar_textos_argumentos: Callable
+gerenciar_falas: GerenciarFalas
 # bug no label, se tirar o \n do final, ele não exibe a última linha.
 with open(str(local_programa / 'textos' / 'texto_bem_vindo.txt')) as arquivo:
     forma_texto_inicio = arquivo.read()
@@ -50,11 +51,11 @@ class TelaPrincipal(Screen):
         """Compoẽ os widgets na tela."""
         with VerticalScroll(id = 'leitor_tela_principal') as container:
             container.border_title = 'Principal'
-            # numero_paginas e numero_sentenças corrigidos para o usuário.
-            numero_paginas, numero_sentenças = (
-                retornar_numero_paginas_sentenças()
+            # número_páginas e número_sentenças corrigidos para o usuário.
+            número_páginas, número_sentenças = (
+                retornar_número_páginas_sentenças()
             )
-            botões_desabilitados = numero_paginas == 1
+            botões_desabilitados = número_páginas == 1
             with Vertical(id = 'container_progresso'):
                 yield self.label_status
                 yield self.barra_progresso
@@ -71,13 +72,13 @@ class TelaPrincipal(Screen):
                     yield Input(
                         id = 'input_pagina',
                         validators = [Function(
-                            self.pagina_valida, 'Não é uma página válida.'
+                            self.página_valida, 'Não é uma página válida.'
                         )],
                         placeholder = 'página'
                     )
                     yield Input(
                         id = 'input_sentenca',
-                        validators = [Number(1, numero_sentenças)],
+                        validators = [Number(1, número_sentenças)],
                         placeholder = 'sentença',
                         disabled = True
                     )
@@ -99,12 +100,12 @@ class TelaPrincipal(Screen):
 
     def _atualizar_label_status(self) -> None:
         """Atualiza o texto do label principal."""
-        pagina = contagens._indexes_contagens[contagens.numero_atual] + 1
-        sentença = contagens.contagem_atual.numero_atual + 1
-        pagina = colorir(pagina, 'dodger_blue2')
+        página = contagens._indexes_contagens[contagens.número_atual] + 1
+        sentença = contagens.contagem_atual.número_atual + 1
+        página = colorir(página, 'dodger_blue2')
         sentença = colorir(sentença, 'dodger_blue2')
-        texto = self.forma.format(pagina, sentença)
-        texto += '\n' + paginas_sentencas_para_o_usuario()
+        texto = self.forma.format(página, sentença)
+        texto += '\n' + páginas_sentencas_para_o_usuario()
         self.label_status.update(texto)
 
     def _atualizar_label_sentenças(self, texto) -> None:
@@ -116,40 +117,40 @@ class TelaPrincipal(Screen):
     @on(Button.Pressed, '#voltar')
     def voltar_pressionado(self, evento: Button.Pressed) -> None:
         """Executa uma tarefa quando o esse botão for pressionado."""
-        voltar(contagens)
+        gerenciar_falas.voltar()
         # não precisa colocar número negativo abaixo pois o porcentagem
         # já retorna um número negativo
         self.barra_progresso.advance(
-            porcentagem.calcular(contagens.numero_atual_)
+            porcentagem.calcular(contagens.número_atual_)
         )
         self._atualizar_label_status()
 
     @on(Button.Pressed, '#avancar')
     def avançar_pressionado(self, evento: Button.Pressed) -> None:
         """Executa uma tarefa quando o esse botão for pressionado."""
-        avancar(contagens)
+        gerenciar_falas.avancar()
         self.barra_progresso.advance(
-            porcentagem.calcular(contagens.numero_atual_)
+            porcentagem.calcular(contagens.número_atual_)
         )
         self._atualizar_label_status()
-    
+
     @on(Button.Pressed, '#avancar_pagina')
-    def avançar_pagina_pressionado(self, evento: Button.Pressed) -> None:
+    def avançar_página_pressionado(self, evento: Button.Pressed) -> None:
         """Executa uma tarefa quando o esse botão for pressionado."""
-        avancar_pagina(contagens)
+        gerenciar_falas.avancar_página()
         self.barra_progresso.advance(
-            porcentagem.calcular(contagens.numero_atual_)
+            porcentagem.calcular(contagens.número_atual_)
         )
         self._atualizar_label_status()
     
     @on(Button.Pressed, '#voltar_pagina')
-    def voltar_pagina_pressionado(self, evento: Button.Pressed) -> None:
+    def voltar_página_pressionado(self, evento: Button.Pressed) -> None:
         """Executa uma tarefa quando o esse botão for pressionado."""
-        voltar_pagina(contagens)
+        gerenciar_falas.voltar_página()
         # não precisa colocar número negativo abaixo pois o porcentagem
         # já retorna um número negativo
         self.barra_progresso.advance(
-            porcentagem.calcular(contagens.numero_atual_)
+            porcentagem.calcular(contagens.número_atual_)
         )
         self._atualizar_label_status()
 
@@ -162,7 +163,7 @@ class TelaPrincipal(Screen):
             pausar.disabled = True
             rodar.disabled = False
             self._variaveis_compartilhadas['pausar'] = True
-            contagens.contagem_atual.repetir_ao_passar_pagina = True
+            contagens.contagem_atual.repetir_ao_passar_página = True
             self._atualizar_label_status()
             parar_fala()
 
@@ -177,25 +178,26 @@ class TelaPrincipal(Screen):
             self._variaveis_compartilhadas['pausar'] = False
             self._atualizar_label_status()
             parar_fala()
+        self.call_later(self.executar_fala)
 
     @on(Input.Changed, '#input_pagina')
-    def input_pagina_modificada(self, evento: Input.Changed) -> None:
+    def input_página_modificada(self, evento: Input.Changed) -> None:
         """Troca de página conforme o usuário deseja."""
         self.pausar_pressionado(None)
         input_sentença = self.query_one('#input_sentenca', Input)
         if evento.validation_result.is_valid:
             # evento.value corrigido para o programa.
-            contagens._definir_progresso_paginas(
+            contagens._definir_progresso_páginas(
                 contagens._indexes_contagens_inverso[int(evento.value) - 1]
             )
             # Number corrigido para o usuário.
             input_sentença.validators = [
-                Number(1, contagens.contagem_atual._numero_final + 1)
+                Number(1, contagens.contagem_atual._número_final + 1)
             ]
             input_sentença.value = '1'
             self._atualizar_label_status()
             self.barra_progresso.advance(
-                porcentagem.calcular(contagens.numero_atual_)
+                porcentagem.calcular(contagens.número_atual_)
             )
             input_sentença.disabled = False
         else:
@@ -208,12 +210,12 @@ class TelaPrincipal(Screen):
         if evento.validation_result.is_valid:
             contagens._definir_progresso_sentença(int(evento.value) - 1)
             self.barra_progresso.advance(
-                porcentagem.calcular(contagens.numero_atual_)
+                porcentagem.calcular(contagens.número_atual_)
             )
             self._atualizar_label_status()
     
     @staticmethod
-    def pagina_valida(valor: str) -> bool:
+    def página_valida(valor: str) -> bool:
         if not valor.isnumeric():
             return False
         if int(valor) - 1 in contagens._indexes_contagens.values():
@@ -222,19 +224,21 @@ class TelaPrincipal(Screen):
             return False
 
 
-def retornar_numero_paginas_sentenças() -> list[int]:
-    paginas = len(contagens._contagens)
-    sentenças = contagens.contagem_atual.retornar_numero_final + 1
-    return [paginas, sentenças]
+def retornar_número_páginas_sentenças() -> list[int]:
+    páginas = len(contagens._contagens)
+    sentenças = contagens.contagem_atual.retornar_número_final + 1
+    return [páginas, sentenças]
 
 
-def paginas_sentencas_para_o_usuario() -> str:
-    # paginas e sentenças corrigidas para o usuário.
-    paginas, sentenças = retornar_numero_paginas_sentenças()
-    paginas = colorir(paginas, 'dodger_blue2')
+def páginas_sentencas_para_o_usuario() -> str:
+    # páginas e sentenças corrigidas para o usuário.
+    páginas, sentenças = retornar_número_páginas_sentenças()
+    # corrigindo o número para o usuário.
+    páginas += 1
+    páginas = colorir(páginas, 'dodger_blue2')
     sentenças = colorir(sentenças, 'dodger_blue2')
     texto = (
-        f"Total: paginas = {paginas}, sentenças da página atual = {sentenças}"
+        f"Total: páginas = {páginas}, sentenças da página atual = {sentenças}"
     )
     return texto
 
@@ -254,10 +258,10 @@ class TelaBoasVindas(Screen):
         self.barra_progresso.advance(
             porcentagem.porcentagem_atual
         )
-        # pagina e sentença corrigidos para o usuário.
-        pagina = contagens._indexes_contagens[contagens.numero_atual] + 1
-        sentença = contagens.contagem_atual.numero_atual + 1
-        pagina = colorir(pagina, 'dodger_blue2')
+        # página e sentença corrigidos para o usuário.
+        página = contagens._indexes_contagens[contagens.número_atual] + 1
+        sentença = contagens.contagem_atual.número_atual + 1
+        página = colorir(página, 'dodger_blue2')
         sentença = colorir(sentença, 'dodger_blue2')
         nome_arquivo = contagens.nome_arquivo.stem
         extensão = contagens.nome_arquivo.suffix
@@ -267,7 +271,7 @@ class TelaBoasVindas(Screen):
             nome_arquivo = contagens.nome_arquivo.name
         nome_arquivo = colorir(nome_arquivo, 'dodger_blue2')
         texto_inicio = forma_texto_inicio.format(
-            nome_arquivo, pagina, sentença
+            nome_arquivo, página, sentença
         )
         with Grid(id = 'grid_boas_vindas') as container:
             container.border_title = 'Inicio'
@@ -277,20 +281,20 @@ class TelaBoasVindas(Screen):
     @on(Button.Pressed, '#botao_comecar')
     async def começar_pressionado(self, evento: Button.Pressed) -> None:
         """Executa uma tarefa quando o esse botão for pressionado."""
-        self.executar_fala()
+        self.call_later(self.executar_fala)
     
     @work(exclusive = True, thread = True)
     def executar_fala(self) -> None:
         """Thread separada para executar o gerenciar_falas."""
-        gerenciar_falas(
-            *retornar_textos_argumentos(), contagens,
+        gerenciar_falas.gerenciar_falas(
+            *retornar_textos_argumentos(),
             tela_boas_vindas = self
         )
     
     def _atualizar_progresso(self) -> None:
         """Atualiza o progresso da barra de progresso."""
         self.barra_progresso.advance(
-            porcentagem.calcular(contagens.numero_atual_)
+            porcentagem.calcular(contagens.número_atual_)
         )
 
     def _esperar_retomar(self) -> None:
@@ -326,7 +330,7 @@ class LeitorApp(App):
     """Classe da interface por linha de comando."""
 
     CSS_PATH = str(local_programa / 'css/interface.css')
-    variaveis_compartilhadas = {'pausar': False}
+    variaveis_compartilhadas = {'pausar': False, 'rodando falas': False}
     tela_principal = TelaPrincipal(variaveis_compartilhadas)
     tela_boas_vindas = TelaBoasVindas(variaveis_compartilhadas)
     SCREENS = {
@@ -380,7 +384,7 @@ class LeitorApp(App):
         label_carregamento = self.query_one('#label_carregamento', Label)
         label_carregamento.update('Verificando programas instalados')
         # verificar se os programas espeak e mbrola estão instalados
-        if not all(map(esta_instalado, ['espeak', 'mbrola'])):
+        if not all(map(está_instalado, ['espeak', 'mbrola'])):
             mensagem = (
                 'O programa espeak não está instalado.\n'
                 'Para instalar ele com as dependências, digite: sudo apt install '
@@ -395,8 +399,8 @@ class LeitorApp(App):
         
         sleep(0.3)
         label_carregamento.update('Verificando argumentos')
-        if bool(self._argumentos.paginas):
-            if paginas_invalidas(self._argumentos.paginas):
+        if bool(self._argumentos.páginas):
+            if páginas_invalidas(self._argumentos.páginas):
                 mensagem = (
                     'O padrão de números de páginas não correspode ao padrão'
                     ' adequado.\n'
@@ -430,15 +434,16 @@ class LeitorApp(App):
         global injetar_argumentos, retornar_contagens_porcento
         global retornar_textos_argumentos
         label_carregamento.update('Importando bibliotecas')
-        from src.carregar_texto import (injetar_argumentos,
-                                        retornar_contagens_porcento,
-                                        retornar_textos_argumentos)
+        from src.carregar_texto import (
+            injetar_argumentos, retornar_contagens_porcento,
+            retornar_textos_argumentos)
         label_carregamento.update(colorir('Importando bibliotecas', 'green'))
         sleep(0.3)
-        global contagens, porcentagem
+        global contagens, porcentagem, gerenciar_falas
         label_carregamento.update('Carregando ou extraindo o texto')
         injetar_argumentos(self._argumentos)
         contagens, porcentagem = retornar_contagens_porcento()
+        gerenciar_falas = GerenciarFalas(contagens)
         label_carregamento.update(colorir(
             'Carregando ou extraindo o texto', 'green'
         ))
@@ -455,5 +460,5 @@ class LeitorApp(App):
     def exit(self) -> None:
         """Função de sair do programa."""
         self.variaveis_compartilhadas['pausar'] = False
-        sair(contagens)
+        gerenciar_falas.sair()
         super().exit()

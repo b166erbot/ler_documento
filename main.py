@@ -1,5 +1,4 @@
 from argparse import ArgumentParser
-from pathlib import Path
 
 from src.interface import LeitorApp
 
@@ -9,7 +8,7 @@ def main() -> None:
     descricao = 'Programa que lê um texto de um arquivo sem usar a internet.'
     usagem = (
         '[poetry run] python3 main.py -a arquivo -f -l língua -v velocidade '
-        '-p paginas -z'
+        '-p páginas -z'
     )
     parser = ArgumentParser(
         usage = usagem, description = descricao
@@ -26,20 +25,26 @@ def main() -> None:
     )
     parser.add_argument(
         '-le', '--lingua-espeak', required = False, default = 'mb-br1',
-        help = 'Língua pela qual o programa deve falar com espeak e mbrola.'
+        help = (
+            'Língua pela qual o programa deve falar com espeak e mbrola. '
+            'Padrão: mb-br1'
+        )
     )
     parser.add_argument(
         '-ls', '--lingua-spacy', required = False, default = 'pt_core_news_sm',
-        help = 'Língua pela qual o programa deve tratar o texto com spacy.'
+        help = (
+            'Língua pela qual o programa deve tratar o texto com '
+            'spacy. Padrão: pt_core_news_sm.'
+        )
     )
     parser.add_argument(
         '-v', '--velocidade', type = int, default = 130,
-        help = 'Velocidade em que a voz deve falar.'
+        help = 'Velocidade em que a voz deve falar. Padrão: 130.'
     )
     parser.add_argument(
-        '-p', '--paginas',
+        '-p', '--páginas',
         help = (
-            'Paginas a serem recortadas. Ex: "0, 2-5, 7, 8-9, 1". '
+            'páginas a serem recortadas. Ex: "0, 2-5, 7, 8-9, 1". '
             'Caso use essa opção, o usuário precisa saber as páginas'
             'que irá avançar pois o programa não irá informar.'
         )
@@ -57,7 +62,7 @@ main()
 
 
 # TODO: colocar mais tipos de arquivos.
-# TODO: fazer com que ele armazene a folha/"numero da linha" para
+# TODO: fazer com que ele armazene a folha/"número da linha" para
 # eu ler com cautela depois.
 # TODO: colocar um botão só para o play e pause. por causa de bugs, eu resolvi
 # não colocar.

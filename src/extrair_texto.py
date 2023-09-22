@@ -7,13 +7,11 @@ from PyPDF4 import PdfFileReader
 
 from src.processar_texto import configurar_nlp, processar
 
-lista_strings_opcional = list[Optional[str], Optional[list[str]]]
-
-
 lista_substituir = [
-    (r'Œ', '-'), (r'\n-\n', ''),
+    (r'Œ', '-'),
     # deixe esta linha abaixo nessa sequência e por último.
-    (r'[\n\r\t\f\v]+', ''), (r' {2,}', ' ')
+    (r'\n-\n', ''), (r'-\n', ''),
+    (r'[\n\r\t\f\v]+ +', ' '), (r' {2,}', ' ')
 ]
 
 
@@ -22,39 +20,37 @@ def tratar_texto(
 ) -> list[list[int, list[str]]]:
     """Retorna o texto tratado por regex e spacy."""
     textos = []
-    for numero, texto in textos_nao_tratado:
+    for número, texto in textos_nao_tratado:
         for padrao, substituto in lista_substituir:
             texto = sub(padrao, substituto, texto)
         sentenças = list(processar(texto))
         sentenças = list(filter(lambda sentença: bool(sentença), sentenças))
         if bool(sentenças):
-            textos.append([numero, sentenças])
+            textos.append([número, sentenças])
     return textos
 
 
-def extrair_texto(local: Path, *args, **kwargs) -> list[list[int, list[str]]]:
+def extrair_texto(local: Path) -> list[list[int, list[str]]]:
     """Retorna texto de um arquivo de texto comum."""
     with open(local) as arquivo:
         texto = arquivo.read()
-    # Primeira lista abaixo é para dizer que é uma lista de textos.
-    # A segunda lista abaixo é para dizer que está numerada e tem textos.
     texto = tratar_texto([[0, texto]])
     return texto
 
 
 def extrair_texto_pdf(
-    local: Path, pagina: Optional[int] = None
+    local: Path
 ) -> list[list[int, list[str]]]:
     """Retorna textos de um arquivo pdf."""
     # tudo precisa ser feito no contexto do with. Se o arquivo fecha, dá erro.
     with open(local, 'rb') as arquivo:
         leitor_pdf = PdfFileReader(arquivo)
-        numero_paginas = leitor_pdf.numPages
-        iterador = range(leitor_pdf.numPages) if pagina is None else [pagina]
+        número_páginas = leitor_pdf.numPages
+        iterador = range(leitor_pdf.numPages)
         # extrai os textos, filtra pegando somente os que tem texto.
         textos = list(map(
-            lambda numero: [
-                numero, leitor_pdf.getPage(numero).extractText().strip()
+            lambda número: [
+                número, leitor_pdf.getPage(número).extractText().strip()
             ],
             iterador
         ))
@@ -69,7 +65,7 @@ extensoes_e_funcoes = {
 
 
 def extrair(
-    local: Path, lingua_spacy: str, paginas: str = None
+    local: Path, lingua_spacy: str
 ) -> list[int, list[str]]:
     """Retorna textos de um arquivo."""
     configurar_nlp(lingua_spacy)

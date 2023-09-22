@@ -7,7 +7,7 @@ from src.hash import hashear_arquivo
 listas_textos = Union[list[list[str]], list[str]]
 
 
-# ----- shelve textos -----
+# ---------// shelve textos //---------
 def salvar(
     textos: list[list[str]], nome_do_arquivo: Path
 ) -> None:
@@ -35,10 +35,9 @@ def obter_texto(nome_do_arquivo: Path) -> Optional[listas_textos]:
     if all([local_do_arquivo.exists(), local_do_arquivo.is_file()]):
         with shelve.open(local_do_arquivo) as banco:
             return banco.get(hash_do_arquivo)
-# ----- / -----
 
 
-# ----- shelve progresso -----
+# ---------// shelve progresso //---------
 local_arquivo_progresso = Path('progresso.pkl')
 
 
@@ -54,9 +53,9 @@ def carregar_progresso(nome_do_arquivo: Path) -> Optional[list[int]]:
     hash_do_arquivo = hashear_arquivo(nome_do_arquivo)
     with shelve.open(local_arquivo_progresso) as banco:
         return banco.get(hash_do_arquivo)
-# ----- / -----
 
 
+# ---------// funções extras //---------
 def existe_arquivo(local_arquivo: Path) -> bool:
     """Verifica se o arquivo existe."""
     return all([local_arquivo.is_file(), local_arquivo.exists()])
