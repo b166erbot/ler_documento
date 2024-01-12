@@ -4,13 +4,7 @@ from pathlib import Path
 from time import sleep
 from typing import Any, Optional
 
-
-def está_instalado(programa: str) -> bool:
-    """Verifica se o programa está instalado no pc."""
-    for local in os.environ["PATH"].split(os.pathsep):
-        if programa in os.listdir(local):
-            return True
-    return False
+from _utils import está_instalado
 
 
 def tratar_páginas_usuario(páginas: str) -> list[int]:
